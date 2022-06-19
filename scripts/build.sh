@@ -1,4 +1,4 @@
 #!/bin/sh
 
-pip install tabulate
+pip -q install tabulate
 scripts/build.py

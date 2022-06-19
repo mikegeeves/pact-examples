@@ -1,26 +1,18 @@
 #!/usr/bin/env python3
-import glob
-import os
+
 import pathlib
 import subprocess
+import textwrap
 from pathlib import Path
-from typing import NamedTuple
 
 from tabulate import tabulate
 
+from shared import LanguagesAndSpecs, RESULT, _get_languages_and_specs
 
-class LanguagesAndSpecs(NamedTuple):
-    languages: list[str]
-    specs: list[str]
-
-RESULT = {
-    0: 'SUCCESS',
-    1: 'ERROR'
-}
 
 def _build_image(language: str, spec: str, dockerfile: Path):
     print(f'\n - Attempting to build {dockerfile=} for {language=}, {spec=}')
-    command = ['docker', 'build', '.', '-t',f'pact-example-{language}-{spec}']
+    command = ['docker', 'build', '.', '-t', f'pact-example-{language}-{spec}']
     print(' '.join(command))
     p = subprocess.run(command, cwd=str(dockerfile.parent))
     print(f' - Result: {RESULT[p.returncode]}')
@@ -32,23 +24,16 @@ def _build_images(languages_path: pathlib.Path, languages_and_specs: LanguagesAn
     header.extend(languages_and_specs.specs)
     matrix = [header]
     for language in languages_and_specs.languages:
-        spec_results = [language]
+        spec_results = [f'**{language}**']
         for spec in languages_and_specs.specs:
             dockerfile = languages_path.joinpath(language).joinpath(spec).joinpath('Dockerfile')
             if dockerfile.is_file():
                 result = _build_image(language=language, spec=spec, dockerfile=dockerfile)
                 spec_results.append('Yes' if result == 0 else 'Error')
             else:
-                spec_results.append('No')
+                spec_results.append('-')
         matrix.append(spec_results)
     return matrix
-
-
-def _get_languages_and_specs(languages_path: pathlib.Path) -> LanguagesAndSpecs:
-    languages = sorted([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*") if os.path.isdir(x)])
-    specs = sorted(set([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*/*") if os.path.isdir(x)]))
-
-    return LanguagesAndSpecs(languages=languages, specs=specs)
 
 
 if __name__ == "__main__":
@@ -62,14 +47,30 @@ if __name__ == "__main__":
     print('Attempt to build all available, and create a table of all permutations')
     languages_and_specs_table = _build_images(languages_path, languages_and_specs)
 
+    details = textwrap.dedent("""\
+        # Language and spec support
+
+        For each language and spec version identified, is there a corresponding Dockerfile to provide an appropriate environment to run against.
+        - Yes: Dockerfile available and builds successfully
+        - -: No Dockerfile found
+        - Error: Dockerfile found, but fails to build successfully
+
+    """)
+    results = tabulate(languages_and_specs_table, headers="firstrow", tablefmt="github")
+
+    print()
+    print(' STORE BELOW IN .MD')
+    print('=====================')
+    print(details)
+    print(results)
     print()
     print('=====================')
-    print(' STORE BELOW IN .MD')
-    print()
-    print('# Language and spec support')
-    print('For each language and spec version identified, is there a corresponding Dockerfile to provide an appropriate environment to run against.')
-    print(' - Yes: Dockerfile available and builds successfully')
-    print(' - No: No Dockerfile found')
-    print(' - Error: Dockerfile found, but fails to build successfully')
-    print()
-    print(tabulate(languages_and_specs_table, headers="firstrow", tablefmt="github"))
+    print(' END')
+
+    output_path = root_path.joinpath('output').joinpath('build.md')
+    print(f'writing to: {output_path=}')
+    with open(output_path, 'w') as f:
+        f.write('\n')
+        f.write(details)
+        f.write(results)
+        f.write('\n')
