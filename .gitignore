@@ -1,0 +1,18 @@
+# Misc
+*.swp
+
+# Python
+__pycache__
+.pytest_cache
+.env
+*.egg-info
+*.pyc
+.venv
+
+# IDEs
+.idea
+
+# Pact
+**/tests/pacts
+**/tests/log
+**/log/pact.log
