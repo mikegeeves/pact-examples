@@ -3,8 +3,9 @@
 import glob
 import os
 import pathlib
+import tempfile
 import textwrap
-
+from  tempfile import TemporaryDirectory
 import docker
 from docker.errors import ContainerError, ImageNotFound
 from tabulate import tabulate
@@ -12,13 +13,21 @@ from tabulate import tabulate
 from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
 
 
-def _run_example(language: str, spec: str, example_dir: pathlib.Path):
+def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example:str, spec:str,language:str):
+    examples = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/*")])
+    print(f'found examples to compare: {examples=}')
+
+    result = 0
+    return result
+
+
+def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: TemporaryDirectory):
     print(f'-> _run_example({language=}, {spec=}, {example_dir=}')
     client = docker.from_env()
 
     image = f"pact-examples-{language}-{spec}"
     try:
-        volumes = [f'{example_dir}:/example/']
+        volumes = [f'{example_dir}:/example/', f'{tmpdir.name}:/example/pacts/']
         print(f'going to run {image=} with: {volumes=}')
         container = client.containers.run(
             # remove=True,
@@ -47,7 +56,7 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path):
     return result
 
 
-def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAndSpecs, examples: ExamplesAndSpecs) -> list[list[str]]:
+def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAndSpecs, examples: ExamplesAndSpecs, tmpdir: TemporaryDirectory) -> list[list[str]]:
     # Construct the header row
     header = ['Example']
     for language in languages_and_specs.languages:
@@ -61,8 +70,11 @@ def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAnd
             for spec in languages_and_specs.specs:
                 makefile = examples_path.joinpath(example).joinpath(spec).joinpath(f'{example}-{language}').joinpath('Makefile')
                 if makefile.is_file():
-                    result = _run_example(language=language, spec=spec, example_dir=makefile.parent)
-                    example_results.append('Yes' if result == 0 else 'Error')
+                    result = _run_example(language=language, spec=spec, example_dir=makefile.parent, tmpdir=tmpdir)
+                    if result == 0:
+                        # If the tests ran, now compare the pact for this example
+                        result = _compare_example(tmpdir=tmpdir, examples_path=examples_path, example=example, spec=spec,language=language)
+                    example_results.append('✅ Yes' if result == 0 else '❌ Error')
                 else:
                     example_results.append(f'-')
         matrix.append(example_results)
@@ -85,9 +97,9 @@ if __name__ == "__main__":
 
     examples = _get_examples(examples_path)
     print(f'Found: {examples=}')
-
+    tmpdir = tempfile.TemporaryDirectory()
     print('Attempt to build all available, and create a table of all permutations')
-    languages_and_examples_and_specs_table = _run_examples(examples_path, languages_and_specs, examples)
+    languages_and_examples_and_specs_table = _run_examples(examples_path, languages_and_specs, examples, tmpdir=tmpdir)
 
     # print('Attempt to build all available, and create a table of all permutations')
     # languages_and_specs_table = _build_images(languages_path, languages_and_specs)

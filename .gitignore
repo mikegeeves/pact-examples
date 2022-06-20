@@ -16,3 +16,6 @@ __pycache__
 **/tests/pacts
 **/tests/log
 **/log/pact.log
+
+# Ignore the pacts which may have been outputted by an example
+examples/*/*/*/pacts/*.json

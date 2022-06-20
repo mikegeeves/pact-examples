@@ -8,5 +8,5 @@ For each language and spec version identified, is there a corresponding Makefile
 
 | Example                          | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v3   | python<br/>v2   | <br/>v3   |
 |----------------------------------|-----------------|-----------|-------------|-----------|-----------------|-----------|
-| **example-consumer-sns**         | -               | -         | -           | -         | -               | Yes       |
-| **example-provider-hello-world** | -               | -         | Yes         | -         | -               | -         |
+| **example-consumer-sns**         | -               | -         | -           | -         | -               | ✅ Yes    |
+| **example-provider-hello-world** | -               | -         | ✅ Yes      | -         | -               | -         |
