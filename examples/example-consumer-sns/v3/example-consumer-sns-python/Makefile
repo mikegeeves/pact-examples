@@ -36,7 +36,8 @@ publish_pacts: .env
 ## Build/test tasks
 ## =====================
 
-test: .env
+test:
+	rm -f pacts/*.json
 	python3 -m pytest
 
 ## =====================
@@ -111,6 +112,7 @@ test_github_webhook:
 ## ======================
 PROJECT := example-consumer-python-sns
 PYTHON_MAJOR_VERSION := 3.8
+TERM := xterm
 
 sgr0 := $(shell tput sgr0)
 red := $(shell tput setaf 1)

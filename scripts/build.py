@@ -12,7 +12,7 @@ from shared import LanguagesAndSpecs, RESULT, _get_languages_and_specs
 
 def _build_image(language: str, spec: str, dockerfile: Path):
     print(f'\n - Attempting to build {dockerfile=} for {language=}, {spec=}')
-    command = ['docker', 'build', '.', '-t', f'pact-example-{language}-{spec}']
+    command = ['docker', 'build', '.', '-t', f'pact-examples-{language}-{spec}']
     print(' '.join(command))
     p = subprocess.run(command, cwd=str(dockerfile.parent))
     print(f' - Result: {RESULT[p.returncode]}')
@@ -29,7 +29,7 @@ def _build_images(languages_path: pathlib.Path, languages_and_specs: LanguagesAn
             dockerfile = languages_path.joinpath(language).joinpath(spec).joinpath('Dockerfile')
             if dockerfile.is_file():
                 result = _build_image(language=language, spec=spec, dockerfile=dockerfile)
-                spec_results.append('Yes' if result == 0 else 'Error')
+                spec_results.append('✅ Yes' if result == 0 else '❌ Error')
             else:
                 spec_results.append('-')
         matrix.append(spec_results)

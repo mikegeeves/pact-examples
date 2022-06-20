@@ -3,22 +3,48 @@
 import glob
 import os
 import pathlib
-import subprocess
 import textwrap
-from pathlib import Path
 
+import docker
+from docker.errors import ContainerError, ImageNotFound
 from tabulate import tabulate
 
-from shared import LanguagesAndSpecs, RESULT, _get_languages_and_specs, ExamplesAndSpecs
+from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
 
 
-def _build_image(language: str, spec: str, dockerfile: Path):
-    print(f'\n - Attempting to build {dockerfile=} for {language=}, {spec=}')
-    command = ['docker', 'build', '.', '-t', f'pact-example-{language}-{spec}']
-    print(' '.join(command))
-    p = subprocess.run(command, cwd=str(dockerfile.parent))
-    print(f' - Result: {RESULT[p.returncode]}')
-    return p.returncode
+def _run_example(language: str, spec: str, example_dir: pathlib.Path):
+    print(f'-> _run_example({language=}, {spec=}, {example_dir=}')
+    client = docker.from_env()
+
+    image = f"pact-examples-{language}-{spec}"
+    try:
+        volumes = [f'{example_dir}:/example/']
+        print(f'going to run {image=} with: {volumes=}')
+        container = client.containers.run(
+            # remove=True,
+            volumes=volumes,
+            image=image,
+            # environment=envs,
+            command=f"sh -c 'cd /example/; make test'",
+            tty=True,
+            stderr=True,
+            stdout=True,
+            detach=True
+        )
+        result = container.wait()['StatusCode']
+    except ImageNotFound:
+        print(f'Image {image=} does not exist, unable to run')
+        result = 1
+    except ContainerError as ex:
+        print(f'ContainerError: {ex=}, logs: {ex.container.logs()}')
+
+        result = 1
+    finally:
+        print(f'logs: {container.logs()}')
+        container.remove()
+
+    print(f'<- _run_example, returning: {result=}')
+    return result
 
 
 def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAndSpecs, examples: ExamplesAndSpecs) -> list[list[str]]:
@@ -35,9 +61,8 @@ def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAnd
             for spec in languages_and_specs.specs:
                 makefile = examples_path.joinpath(example).joinpath(spec).joinpath(f'{example}-{language}').joinpath('Makefile')
                 if makefile.is_file():
-                    # result = _run_example(language=language, spec=spec, makefile=makefile)
-                    # example_results.append('Yes' if result == 0 else 'Error')
-                    example_results.append(f'Yes')
+                    result = _run_example(language=language, spec=spec, example_dir=makefile.parent)
+                    example_results.append('Yes' if result == 0 else 'Error')
                 else:
                     example_results.append(f'-')
         matrix.append(example_results)
