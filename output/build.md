@@ -10,4 +10,4 @@ For each language and spec version identified, is there a corresponding Dockerfi
 |------------|--------|----------|
 | **broken** | -      | ❌ Error |
 | **js**     | ✅ Yes | -        |
-| **python** | -      | ✅ Yes   |
+| **python** | ✅ Yes | ✅ Yes   |

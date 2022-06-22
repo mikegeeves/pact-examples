@@ -29,9 +29,11 @@ setup: pci pca deps ## Install packages and git hook scripts, and run them
 build: ## Build the various Docker images
 	scripts/build.sh
 
-examples: build ## Run the various examples
+examples: deps build ## Run the various examples
 	scripts/run_examples.sh
 
+deps: ## Install any dependencies for running the examples
+	pip install -r requirements.txt
 venv:
 	@if [ -d "./.venv" ]; then echo "$(red).venv already exists, not continuing!$(sgr0)"; exit 1; fi
 	@type pyenv >/dev/null 2>&1 || (echo "$(red)pyenv not found$(sgr0)"; exit 1)

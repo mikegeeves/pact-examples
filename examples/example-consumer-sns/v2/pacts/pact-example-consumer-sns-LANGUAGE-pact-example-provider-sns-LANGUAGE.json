@@ -1,9 +1,9 @@
 {
   "consumer": {
-    "name": "pactflow-example-consumer-python-sns"
+    "name": "pact-example-consumer-sns-LANGUAGE"
   },
   "provider": {
-    "name": "pactflow-example-provider-python-sns"
+    "name": "pact-example-provider-sns-LANGUAGE"
   },
   "messages": [
     {
@@ -58,7 +58,7 @@
   ],
   "metadata": {
     "pactSpecification": {
-      "version": "3.0.0"
+      "version": "2.0.0"
     }
   }
 }

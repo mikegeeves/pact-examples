@@ -1,23 +1,43 @@
 #!/usr/bin/env python3
 
 import glob
+import json
 import os
 import pathlib
 import tempfile
 import textwrap
-from  tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory
 import docker
 from docker.errors import ContainerError, ImageNotFound
 from tabulate import tabulate
-
+from deepdiff import DeepDiff
 from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
 
 
-def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example:str, spec:str,language:str):
-    examples = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/*")])
-    print(f'found examples to compare: {examples=}')
+def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
+    examples_to_compare_against = sorted([pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")])
+
+    example_pacts = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/*")])[0]
 
     result = 0
+    for example_to_compare_against in examples_to_compare_against:
+        print(f'Looking to see if {example_to_compare_against=} is provided by one of {example_pacts=}')
+        if example_to_compare_against.replace('LANGUAGE', language) in example_pacts:
+            with open(f"{examples_path}/{example}/{spec}/pacts/{example_to_compare_against}") as json_expected:
+                expected = json.load(json_expected)
+            with open(f"{tmpdir.name}/{example_to_compare_against.replace('LANGUAGE', language)}") as json_actual:
+                actual = json.load(json_actual)
+
+            expected['consumer']['name'] = expected['consumer']['name'].replace('LANGUAGE', language)
+            expected['provider']['name'] = expected['provider']['name'].replace('LANGUAGE', language)
+
+            diff = DeepDiff(actual, expected)
+            if diff:
+                print('Pacts were not identical!')
+                print(diff)
+                result = 1
+        else:
+            result = 1
     return result
 
 
@@ -26,8 +46,12 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
     client = docker.from_env()
 
     image = f"pact-examples-{language}-{spec}"
+    container = None
     try:
-        volumes = [f'{example_dir}:/example/', f'{tmpdir.name}:/example/pacts/']
+        volumes = {
+            example_dir: {'bind': '/example/', 'mode': 'ro'},
+            tmpdir.name: {'bind': '/example/pacts/', 'mode': 'rw'}
+        }
         print(f'going to run {image=} with: {volumes=}')
         container = client.containers.run(
             # remove=True,
@@ -49,14 +73,16 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
 
         result = 1
     finally:
-        print(f'logs: {container.logs()}')
-        container.remove()
+        if container:
+            print(f'logs: {container.logs()}')
+            container.remove()
 
     print(f'<- _run_example, returning: {result=}')
     return result
 
 
-def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAndSpecs, examples: ExamplesAndSpecs, tmpdir: TemporaryDirectory) -> list[list[str]]:
+def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAndSpecs, examples: ExamplesAndSpecs, tmpdir: TemporaryDirectory) -> list[
+    list[str]]:
     # Construct the header row
     header = ['Example']
     for language in languages_and_specs.languages:
@@ -73,7 +99,7 @@ def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAnd
                     result = _run_example(language=language, spec=spec, example_dir=makefile.parent, tmpdir=tmpdir)
                     if result == 0:
                         # If the tests ran, now compare the pact for this example
-                        result = _compare_example(tmpdir=tmpdir, examples_path=examples_path, example=example, spec=spec,language=language)
+                        result = _compare_example(tmpdir=tmpdir, examples_path=examples_path, example=example, spec=spec, language=language)
                     example_results.append('✅ Yes' if result == 0 else '❌ Error')
                 else:
                     example_results.append(f'-')
