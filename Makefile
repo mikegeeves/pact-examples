@@ -29,8 +29,8 @@ setup: pci pca deps ## Install packages and git hook scripts, and run them
 build: ## Build the various Docker images
 	scripts/build.sh
 
-examples: deps build ## Run the various examples
-	scripts/run_examples.sh
+consumer-feature-examples: deps build ## Run the various Pact Consumer feature examples
+	scripts/run_consumer_feature_examples.sh
 
 deps: ## Install any dependencies for running the examples
 	pip install -r requirements.txt

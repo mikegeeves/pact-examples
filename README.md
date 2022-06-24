@@ -52,6 +52,7 @@ An additional Dockerfile which *would* generate `pact-examples-broken-v3` is pre
 
 ### Examples
 
+#### Consumer Features
 Each example demonstrating a particular feature [currently just looking at Pact consumers], and the expected Pact file
 it should generate are contained withing the `examples` dir.
 
@@ -59,6 +60,7 @@ Current structure and purpose:
 
     - examples
         - example-consumer-sns <- the feature description/name
+            - README.md <- containing details about the feature. TODO: How much info to put here and how to use?
             - v2 <- the spec version it is for, indicating which spec version of the Docker image to run
                 - example-consumer-sns-python <- dir containing the implementation, in this case for python
                 - pacts
@@ -74,6 +76,13 @@ TODO: Currently naming with a hardcoded string of `LANGUAGE` which is replaced t
 
 Each example is expected to contain a `Makefile`, from which a `make test` can be performed using the identified Docker
 image. Pacts are expected to be outputted to the `pacts` dir within the example dir.
+
+#### Verifier
+TODO: ruby vs rust, cli, docker, ..maven etc?
+
+#### Pact Broker
+TODO: features such as tags? envs? etc?
+
 
 ## Usage
 
@@ -95,9 +104,10 @@ For example, in this case:
 
 ### Examples
 
-To attempt to run the provided examples: `make examples`
+#### Consumer Features
+To attempt to run the provided examples: `make consumer-feature-examples`
 
-This will additionally generate `output\examples.md` containing a matrix of all examples against the languages and spec
+This will additionally generate `output\consumer-feature-examples.md` containing a matrix of all examples against the languages and spec
 versions found, and if they match or not.
 
 When running, the `pacts` dir for each example is mapped to a tmp dir, where the pacts can then be compared against the
@@ -105,9 +115,15 @@ provided and expected output.
 
 For example, in this case:
 
-| Example                          | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v3   | python<br/>v2   | <br/>v3   |
-|----------------------------------|-----------------|-----------|-------------|-----------|-----------------|-----------|
-| **example-consumer-sns**         | -               | -         | -           | -         | ❌ Error        | ✅ Yes    |
+
+| Example                          | Description                                                                                                            | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v3   | python<br/>v2   | <br/>v3   |
+|----------------------------------|------------------------------------------------------------------------------------------------------------------------|-----------------|-----------|-------------|-----------|-----------------|-----------|
+| **example-consumer-sns**         | This example is a simple example to demonstrate the concept of feature examples, rather than anything specific to SNS! | -               | -         | -           | -         | ❌ Error        | ✅ Yes    |
 
 Here the v2 and v3 pact files expected are identical apart from the version contained in them, where v2 requires v2. As
 a result the python v2 fails.
+
+From the logs [TODO: logging levels]
+
+    Pacts were not identical!
+    {'values_changed': {"root['metadata']['pactSpecification']['version']": {'new_value': '2.0.0', 'old_value': '3.0.0'}}}

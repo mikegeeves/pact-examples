@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pypandoc
 import glob
 import json
 import os
@@ -12,7 +13,7 @@ from docker.errors import ContainerError, ImageNotFound
 from tabulate import tabulate
 from deepdiff import DeepDiff
 from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
-
+from mdutils.fileutils.fileutils import MarkDownFile
 
 def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
     examples_to_compare_against = sorted([pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")])
@@ -84,14 +85,24 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
 def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAndSpecs, examples: ExamplesAndSpecs, tmpdir: TemporaryDirectory) -> list[
     list[str]]:
     # Construct the header row
-    header = ['Example']
+    header = ['Example','Description']
     for language in languages_and_specs.languages:
         header.append(f'{language}<br/>{languages_and_specs.specs[0]}')
         for spec in languages_and_specs.specs[1:]:
             header.append(f'<br/>{spec}')
     matrix = [header]
     for example in examples:
-        example_results = [f'**{example}**']
+        description_readme = examples_path.joinpath(example).joinpath('README.md')
+
+        # TODO: Super janky reading README, make this actually parse
+        if description_readme.is_file():
+            with open(description_readme) as f:
+                f.readline()
+                f.readline()
+                description = f.readline()
+        else:
+            description = f'No example README.md found'
+        example_results = [f'**{example}**',description]
         for language in languages_and_specs.languages:
             for spec in languages_and_specs.specs:
                 makefile = examples_path.joinpath(example).joinpath(spec).joinpath(f'{example}-{language}').joinpath('Makefile')
@@ -116,7 +127,7 @@ def _get_examples(examples_path: pathlib.Path) -> list[str]:
 if __name__ == "__main__":
     print('Identifying and running available examples')
     root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == 'scripts' else pathlib.Path.cwd()
-    examples_path = root_path.joinpath('examples')
+    examples_path = root_path.joinpath('consumer-features')
     languages_path = root_path.joinpath('languages')
 
     languages_and_specs = _get_languages_and_specs(languages_path)
@@ -150,7 +161,7 @@ if __name__ == "__main__":
     print('=====================')
     print(' END')
 
-    output_path = root_path.joinpath('output').joinpath('examples.md')
+    output_path = root_path.joinpath('output').joinpath('consumer-feature-examples.md')
     print(f'writing to: {output_path=}')
     with open(output_path, 'w') as f:
         f.write('\n')
