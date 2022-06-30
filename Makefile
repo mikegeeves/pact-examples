@@ -1,5 +1,3 @@
-TOP ?= $(shell pwd)
-
 PYTHON_MAJOR_VERSION := 3.9
 
 sgr0 := $(shell tput sgr0)
@@ -13,6 +11,10 @@ help: ## Show this help message
 	@echo 'targets:'
 	@egrep '^(.+)\:.*##\ (.+)' ${MAKEFILE_LIST} | column -t -c 2 -s ':#'
 
+
+#==============================================================================
+# For setting up pre-commits etc
+#==============================================================================
 pci: ## Install pre-commit git hook scripts
 	@echo "\n$(green)Install pre-commit git hook scripts$(sgr0)"
 	pre-commit install
@@ -26,15 +28,14 @@ pca: ## Run pre-commit hooks against all the files
 setup: pci pca deps ## Install packages and git hook scripts, and run them
 	@echo "\n$(green)Install packages and git hook scripts, and run them$(sgr0)"
 
-build: ## Build the various Docker images
-	scripts/build.sh
 
-consumer-feature-examples: deps build ## Run the various Pact Consumer feature examples
-	scripts/run_consumer_feature_examples.sh
-
+#==============================================================================
+# For setting up the framework to be able to run the builds and examples
+#==============================================================================
 deps: ## Install any dependencies for running the examples
 	pip install -r requirements.txt
-venv:
+
+venv: ## Create a pyenv .venv to run in
 	@if [ -d "./.venv" ]; then echo "$(red).venv already exists, not continuing!$(sgr0)"; exit 1; fi
 	@type pyenv >/dev/null 2>&1 || (echo "$(red)pyenv not found$(sgr0)"; exit 1)
 
@@ -53,3 +54,13 @@ venv:
 
 	@echo "\n$(green)Use it! (populate .python-version)$(sgr0)"
 	pyenv local ${PROJECT}
+
+
+#==============================================================================
+# Targets to build the images used and run the various examples
+#==============================================================================
+build: ## Build the various Docker images
+	scripts/build.sh
+
+consumer-feature-examples: deps build ## Run the various Pact Consumer feature examples
+	scripts/run_consumer_feature_examples.sh

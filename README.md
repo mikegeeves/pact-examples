@@ -1,4 +1,5 @@
 # pact-examples
+
 Placeholder for starting a central point to collate Pact examples
 
 The goal is to be able to provide an ongoing set of examples across the various languages, whereby each "feature" can be
@@ -15,7 +16,6 @@ This would hopefully also then lower the barrier to code reviews, since if a PR 
 feasible for a developer to "get the gist" of changes in other languages, if they appear to be correct, for the
 languages outside their core skillset.
 
-
 ## Structure
 
 ### Languages
@@ -29,46 +29,53 @@ newer releases remove support for previous functionality (?) (or it may be unhel
 
 Current structure and purpose:
 
-    - languages
-        - broken <- the 'language'
-            - v3 <- the spec
-                - Dockerfile <- the actual Dockerfile to build
-        - python
-            - v2
-                - Dockerfile
-            - v3
-                - Dockerfile
-        - js
-            - v2
-                - Dockerfile
+```
+- languages
+    - broken <- the 'language'
+        - v3 <- the spec
+            - Dockerfile <- the actual Dockerfile to build
+    - python
+        - v2
+            - Dockerfile
+        - v3
+            - Dockerfile
+    - js
+        - v2
+            - Dockerfile
+```
 
 In this case, three Docker images will be built and tagged:
 
-    - pact-examples-python-v2
-    - pact-examples-python-v3
-    - pact-examples-js-v2
+```
+- pact-examples-python-v2
+- pact-examples-python-v3
+- pact-examples-js-v2
+```
 
 An additional Dockerfile which *would* generate `pact-examples-broken-v3` is present, but does not build successfully.
 
 ### Examples
 
 #### Consumer Features
-Each example demonstrating a particular feature [currently just looking at Pact consumers], and the expected Pact file
+
+Each example demonstrating a particular feature \[currently just looking at Pact consumers\], and the expected Pact file
 it should generate are contained withing the `examples` dir.
 
 Current structure and purpose:
 
-    - examples
-        - example-consumer-sns <- the feature description/name
-            - README.md <- containing details about the feature. TODO: How much info to put here and how to use?
-            - v2 <- the spec version it is for, indicating which spec version of the Docker image to run
-                - example-consumer-sns-python <- dir containing the implementation, in this case for python
-                - pacts
-                    - pact-example-consumer-sns-LANGUAGE-pact-example-provider-sns-LANGUAGE.json <- expected pact(s)
-            - v3
-                - example-consumer-sns-python
-                - pacts
-                    - pact-example-consumer-sns-LANGUAGE-pact-example-provider-sns-LANGUAGE.json
+```
+- examples
+    - example-consumer-sns <- the feature description/name
+        - README.md <- containing details about the feature. TODO: How much info to put here and how to use?
+        - v2 <- the spec version it is for, indicating which spec version of the Docker image to run
+            - example-consumer-sns-python <- dir containing the implementation, in this case for python
+            - pacts
+                - pact-example-consumer-sns-LANGUAGE-pact-example-provider-sns-LANGUAGE.json <- expected pact(s)
+        - v3
+            - example-consumer-sns-python
+            - pacts
+                - pact-example-consumer-sns-LANGUAGE-pact-example-provider-sns-LANGUAGE.json
+```
 
 In this case, only `python` implements this example for spec `v3`. A single `pact` is expected to be generated.
 
@@ -78,11 +85,12 @@ Each example is expected to contain a `Makefile`, from which a `make test` can b
 image. Pacts are expected to be outputted to the `pacts` dir within the example dir.
 
 #### Verifier
+
 TODO: ruby vs rust, cli, docker, ..maven etc?
 
 #### Pact Broker
-TODO: features such as tags? envs? etc?
 
+TODO: features such as tags? envs? etc?
 
 ## Usage
 
@@ -101,20 +109,19 @@ For example, in this case:
 | **js**     | ✅ Yes | -        |
 | **python** | ✅ Yes | ✅ Yes   |
 
-
 ### Examples
 
 #### Consumer Features
+
 To attempt to run the provided examples: `make consumer-feature-examples`
 
-This will additionally generate `output\consumer-feature-examples.md` containing a matrix of all examples against the languages and spec
+This will additionally generate `output/consumer-feature-examples.md` containing a matrix of all examples against the languages and spec
 versions found, and if they match or not.
 
 When running, the `pacts` dir for each example is mapped to a tmp dir, where the pacts can then be compared against the
 provided and expected output.
 
 For example, in this case:
-
 
 | Example                          | Description                                                                                                            | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v3   | python<br/>v2   | <br/>v3   |
 |----------------------------------|------------------------------------------------------------------------------------------------------------------------|-----------------|-----------|-------------|-----------|-----------------|-----------|
@@ -123,7 +130,9 @@ For example, in this case:
 Here the v2 and v3 pact files expected are identical apart from the version contained in them, where v2 requires v2. As
 a result the python v2 fails.
 
-From the logs [TODO: logging levels]
+From the logs \[TODO: logging levels\]
 
-    Pacts were not identical!
-    {'values_changed': {"root['metadata']['pactSpecification']['version']": {'new_value': '2.0.0', 'old_value': '3.0.0'}}}
+```
+Pacts were not identical!
+{'values_changed': {"root['metadata']['pactSpecification']['version']": {'new_value': '2.0.0', 'old_value': '3.0.0'}}}
+```
