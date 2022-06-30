@@ -31,9 +31,9 @@ Current structure and purpose:
 
 ```
 - languages
-    - broken <- the 'language'
-        - v3 <- the spec
-            - Dockerfile <- the actual Dockerfile to build
+    - broken                <-- the 'language'
+        - v3                <-- the spec
+            - Dockerfile    <-- the actual Dockerfile to build
     - python
         - v2
             - Dockerfile
@@ -65,10 +65,10 @@ Current structure and purpose:
 
 ```
 - examples
-    - example-consumer-sns <- the feature description/name
-        - README.md <- containing details about the feature. TODO: How much info to put here and how to use?
-        - v2 <- the spec version it is for, indicating which spec version of the Docker image to run
-            - example-consumer-sns-python <- dir containing the implementation, in this case for python
+    - example-consumer-sns                   <-- the feature description/name
+        - README.md                          <-- containing details about the feature. TODO: How much info to put here and how to use?
+        - v2                                 <-- the spec version it is for, indicating which spec version of the Docker image to run
+            - example-consumer-sns-python    <-- dir containing the implementation, in this case for python
             - pacts
                 - pact-example-consumer-sns-LANGUAGE-pact-example-provider-sns-LANGUAGE.json <- expected pact(s)
         - v3
@@ -79,18 +79,54 @@ Current structure and purpose:
 
 In this case, only `python` implements this example for spec `v3`. A single `pact` is expected to be generated.
 
+```
 TODO: Currently naming with a hardcoded string of `LANGUAGE` which is replaced to verify the pact matches, seems clunky
+```
 
 Each example is expected to contain a `Makefile`, from which a `make test` can be performed using the identified Docker
 image. Pacts are expected to be outputted to the `pacts` dir within the example dir.
 
 #### Verifier
 
+```
 TODO: ruby vs rust, cli, docker, ..maven etc?
+```
 
 #### Pact Broker
 
+```
 TODO: features such as tags? envs? etc?
+```
+
+## Additionally generated artifacts
+
+### Docusaurus
+
+```
+TODO:
+    It should be possible to take the README from an example, include places
+    where code fragments should go, and by annotating code somehow identify the
+    relevant blocks. That can then get pulled into a code tabbed Docusaurus page
+    ..somehow
+```
+
+### Killercoda
+
+```
+TODO:
+    Would there be some way to spin up examples for these? Maybe if the README
+    was structured in steps? You can generate a structure.json of courses and
+    scenarios
+```
+
+### Logs
+
+```
+TODO:
+    It might be helpful to store the log output, maybe not something to commit
+    but it could be useful to be able to see how the various logs look like for
+    each language run against
+```
 
 ## Usage
 
@@ -130,7 +166,7 @@ For example, in this case:
 Here the v2 and v3 pact files expected are identical apart from the version contained in them, where v2 requires v2. As
 a result the python v2 fails.
 
-From the logs \[TODO: logging levels\]
+From the logs (TODO: logging levels)
 
 ```
 Pacts were not identical!
