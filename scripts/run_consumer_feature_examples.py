@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from bs4 import BeautifulSoup
 
 import pypandoc
 import glob
@@ -14,11 +15,12 @@ from tabulate import tabulate
 from deepdiff import DeepDiff
 from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
 from mdutils.fileutils.fileutils import MarkDownFile
-
+from docker.types import Mount
+import markdown
 def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
     examples_to_compare_against = sorted([pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")])
 
-    example_pacts = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/*")])[0]
+    example_pacts = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/pacts/*")])[0]
 
     result = 0
     for example_to_compare_against in examples_to_compare_against:
@@ -26,7 +28,7 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
         if example_to_compare_against.replace('LANGUAGE', language) in example_pacts:
             with open(f"{examples_path}/{example}/{spec}/pacts/{example_to_compare_against}") as json_expected:
                 expected = json.load(json_expected)
-            with open(f"{tmpdir.name}/{example_to_compare_against.replace('LANGUAGE', language)}") as json_actual:
+            with open(f"{tmpdir.name}/pacts/{example_to_compare_against.replace('LANGUAGE', language)}") as json_actual:
                 actual = json.load(json_actual)
 
             expected['consumer']['name'] = expected['consumer']['name'].replace('LANGUAGE', language)
@@ -49,13 +51,22 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
     image = f"pact-examples-{language}-{spec}"
     container = None
     try:
+        # The Ruby Pact Mock Service seems to get unhappy if it is unable to write a log.
+        # Unable to nicely get just a single file from the dir mounted as tmpfs, come back to this one...
+        # Couldn't get this to mount:
+        # pact_mock_log = f'{tmpdir.name}/pact-mock-service.log'
+        # open(pact_mock_log, 'a').close()
+
+        # pact-python message doesn't support specifying the log_dir to output to
+        # As a result, we will need the main dir to be writable
         volumes = {
-            example_dir: {'bind': '/example/', 'mode': 'ro'},
-            tmpdir.name: {'bind': '/example/pacts/', 'mode': 'rw'}
+            tmpdir.name: {'bind': '/example/output/', 'mode': 'rw'},
+            example_dir: {'bind': '/example/', 'mode': 'rw'},
         }
         print(f'going to run {image=} with: {volumes=}')
         container = client.containers.run(
-            # remove=True,
+            # So we don't get mixed up perms and have files we can't delete, use the current uid
+            user=os.getuid(),
             volumes=volumes,
             image=image,
             # environment=envs,
@@ -94,12 +105,17 @@ def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAnd
     for example in examples:
         description_readme = examples_path.joinpath(example).joinpath('README.md')
 
-        # TODO: Super janky reading README, make this actually parse
+        # TODO: Using Markdown and BeautifulSoup seems a bit overkill to pull out something? Something robust is needed though
         if description_readme.is_file():
             with open(description_readme) as f:
-                f.readline()
-                f.readline()
-                description = f.readline()
+                data = f.read()
+                md = markdown.Markdown()
+                html = md.convert(data)
+
+                # Parse with Beautiful Soup
+                # This will extract the FIRST PARAGRAPH from the Markdown
+                soup = BeautifulSoup(html, 'html.parser')
+                description = [x.text for x in list(soup.children) if x.name == 'p'][0]
         else:
             description = f'No example README.md found'
         example_results = [f'**{example}**',description]

@@ -7,7 +7,9 @@ from src.product.product_service import receive_product_update
 
 CONSUMER_NAME = "pact-example-consumer-sns-python"
 PROVIDER_NAME = os.getenv("PACT_PROVIDER", "pact-example-provider-sns-python")
-PACT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "pacts")
+
+PACT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "output", "pacts")
+LOG_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "output", "logs")
 
 @pytest.fixture(scope="session")
 def consumer():
@@ -21,6 +23,7 @@ def pact():
     ).has_pact_with(
         Provider(PROVIDER_NAME),
         pact_dir=PACT_DIR,
+        # log_dir=LOG_DIR
     )
 
     yield pact

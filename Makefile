@@ -64,3 +64,5 @@ build: ## Build the various Docker images
 
 consumer-feature-examples: deps build ## Run the various Pact Consumer feature examples
 	scripts/run_consumer_feature_examples.sh
+
+examples: consumer-feature-examples ## Run all the examples
