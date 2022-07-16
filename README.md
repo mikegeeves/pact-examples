@@ -110,6 +110,33 @@ TODO:
     ..somehow
 ```
 
+IN PROGRESS!
+
+Since each example has a single README, it can be shared across the various languages.
+This is done by commenting in the README where an expected code block would go,
+and then annotating lines marking the start and end of a code block.
+
+In the example README, the annotation looks like:
+`<!-- Annotated code block - Setting up the Consumer -->`
+
+Here, the title of the block is "Setting up the Consumer".
+
+A corresponding code block in python would then look like, for example:
+
+```python
+# Pact annotated code block - Setting up the Consumer
+pact = Consumer("BearServiceClient").has_pact_with(
+    Provider("BearService"),
+    host_name=PACT_MOCK_HOST,
+    port=PACT_MOCK_PORT,
+    pact_dir=PACT_DIR,
+    log_dir=LOG_DIR,
+)
+# End Pact annotated code block
+```
+
+When running the examples, a .mdx file containing Tabs is generated under output/examples
+
 ### Killercoda
 
 ```

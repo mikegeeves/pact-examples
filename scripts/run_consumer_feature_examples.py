@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import re
+from collections import defaultdict
+
 from bs4 import BeautifulSoup
 
 import pypandoc
@@ -17,26 +20,30 @@ from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
 from mdutils.fileutils.fileutils import MarkDownFile
 from docker.types import Mount
 import markdown
+
+
 def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
-    examples_to_compare_against = sorted([pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")])
+    examples_to_compare_against = sorted(
+        [pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
+    )
 
     example_pacts = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/pacts/*")])[0]
 
     result = 0
     for example_to_compare_against in examples_to_compare_against:
-        print(f'Looking to see if {example_to_compare_against=} is provided by one of {example_pacts=}')
-        if example_to_compare_against.replace('LANGUAGE', language) in example_pacts:
+        print(f"Looking to see if {example_to_compare_against=} is provided by one of {example_pacts=}")
+        if example_to_compare_against.replace("LANGUAGE", language) in example_pacts:
             with open(f"{examples_path}/{example}/{spec}/pacts/{example_to_compare_against}") as json_expected:
                 expected = json.load(json_expected)
             with open(f"{tmpdir.name}/pacts/{example_to_compare_against.replace('LANGUAGE', language)}") as json_actual:
                 actual = json.load(json_actual)
 
-            expected['consumer']['name'] = expected['consumer']['name'].replace('LANGUAGE', language)
-            expected['provider']['name'] = expected['provider']['name'].replace('LANGUAGE', language)
+            expected["consumer"]["name"] = expected["consumer"]["name"].replace("LANGUAGE", language)
+            expected["provider"]["name"] = expected["provider"]["name"].replace("LANGUAGE", language)
 
             diff = DeepDiff(actual, expected)
             if diff:
-                print('Pacts were not identical!')
+                print("Pacts were not identical!")
                 print(diff)
                 result = 1
         else:
@@ -45,7 +52,7 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
 
 
 def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: TemporaryDirectory):
-    print(f'-> _run_example({language=}, {spec=}, {example_dir=}')
+    print(f"-> _run_example({language=}, {spec=}, {example_dir=}")
     client = docker.from_env()
 
     image = f"pact-examples-{language}-{spec}"
@@ -60,10 +67,10 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
         # pact-python message doesn't support specifying the log_dir to output to
         # As a result, we will need the main dir to be writable
         volumes = {
-            tmpdir.name: {'bind': '/example/output/', 'mode': 'rw'},
-            example_dir: {'bind': '/example/', 'mode': 'rw'},
+            tmpdir.name: {"bind": "/example/output/", "mode": "rw"},
+            example_dir: {"bind": "/example/", "mode": "rw"},
         }
-        print(f'going to run {image=} with: {volumes=}')
+        print(f"going to run {image=} with: {volumes=}")
         container = client.containers.run(
             # So we don't get mixed up perms and have files we can't delete, use the current uid
             user=os.getuid(),
@@ -74,36 +81,40 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
             tty=True,
             stderr=True,
             stdout=True,
-            detach=True
+            detach=True,
         )
-        result = container.wait()['StatusCode']
+        result = container.wait()["StatusCode"]
     except ImageNotFound:
-        print(f'Image {image=} does not exist, unable to run')
+        print(f"Image {image=} does not exist, unable to run")
         result = 1
     except ContainerError as ex:
-        print(f'ContainerError: {ex=}, logs: {ex.container.logs()}')
+        print(f"ContainerError: {ex=}, logs: {ex.container.logs()}")
 
         result = 1
     finally:
         if container:
-            print(f'logs: {container.logs()}')
+            print(f"logs: {container.logs()}")
             container.remove()
 
-    print(f'<- _run_example, returning: {result=}')
+    print(f"<- _run_example, returning: {result=}")
     return result
 
 
-def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAndSpecs, examples: ExamplesAndSpecs, tmpdir: TemporaryDirectory) -> list[
-    list[str]]:
+def _run_examples(
+    examples_path: pathlib.Path,
+    languages_and_specs: LanguagesAndSpecs,
+    examples: ExamplesAndSpecs,
+    tmpdir: TemporaryDirectory,
+) -> list[list[str]]:
     # Construct the header row
-    header = ['Example','Description']
+    header = ["Example", "Description"]
     for language in languages_and_specs.languages:
-        header.append(f'{language}<br/>{languages_and_specs.specs[0]}')
+        header.append(f"{language}<br/>{languages_and_specs.specs[0]}")
         for spec in languages_and_specs.specs[1:]:
-            header.append(f'<br/>{spec}')
+            header.append(f"<br/>{spec}")
     matrix = [header]
     for example in examples:
-        description_readme = examples_path.joinpath(example).joinpath('README.md')
+        description_readme = examples_path.joinpath(example).joinpath("README.md")
 
         # TODO: Using Markdown and BeautifulSoup seems a bit overkill to pull out something? Something robust is needed though
         if description_readme.is_file():
@@ -114,22 +125,29 @@ def _run_examples(examples_path: pathlib.Path, languages_and_specs: LanguagesAnd
 
                 # Parse with Beautiful Soup
                 # This will extract the FIRST PARAGRAPH from the Markdown
-                soup = BeautifulSoup(html, 'html.parser')
-                description = [x.text for x in list(soup.children) if x.name == 'p'][0]
+                soup = BeautifulSoup(html, "html.parser")
+                description = [x.text for x in list(soup.children) if x.name == "p"][0]
         else:
-            description = f'No example README.md found'
-        example_results = [f'**{example}**',description]
+            description = f"No example README.md found"
+        example_results = [f"**{example}**", description]
         for language in languages_and_specs.languages:
             for spec in languages_and_specs.specs:
-                makefile = examples_path.joinpath(example).joinpath(spec).joinpath(f'{example}-{language}').joinpath('Makefile')
+                makefile = (
+                    examples_path.joinpath(example)
+                    .joinpath(spec)
+                    .joinpath(f"{example}-{language}")
+                    .joinpath("Makefile")
+                )
                 if makefile.is_file():
                     result = _run_example(language=language, spec=spec, example_dir=makefile.parent, tmpdir=tmpdir)
                     if result == 0:
                         # If the tests ran, now compare the pact for this example
-                        result = _compare_example(tmpdir=tmpdir, examples_path=examples_path, example=example, spec=spec, language=language)
-                    example_results.append('✅ Yes' if result == 0 else '❌ Error')
+                        result = _compare_example(
+                            tmpdir=tmpdir, examples_path=examples_path, example=example, spec=spec, language=language
+                        )
+                    example_results.append("✅ Yes" if result == 0 else "❌ Error")
                 else:
-                    example_results.append(f'-')
+                    example_results.append(f"-")
         matrix.append(example_results)
     return matrix
 
@@ -140,47 +158,168 @@ def _get_examples(examples_path: pathlib.Path) -> list[str]:
     return examples
 
 
+def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
+    extensions = ["py", "js", "ts"]
+
+    # pattern_start = re.compile('(#|//) Pact annotated code block - (.*)\n(.*)End')
+    pattern_start = re.compile("(#|//) Pact annotated code block - (.*)")
+    pattern_end = re.compile("(#|//) End Pact annotated code block")
+
+    code_blocks = {}
+
+    # Clunky setup dict of dicts
+    for example in examples:
+        code_blocks[example] = {}
+        for spec in languages_and_specs.specs:
+            code_blocks[example][spec] = {}
+            for language in languages_and_specs.languages:
+                code_blocks[example][spec][language] = {}
+
+    for example in examples:
+        print(f"Looking for code blocks relating to: {example=}")
+        for spec in languages_and_specs.specs:
+            for language in languages_and_specs.languages:
+                example_language_spec_path = (
+                    examples_path.joinpath(example).joinpath(spec).joinpath(f"{example}-{language}")
+                )
+                print(f"{example_language_spec_path=}, exists: {os.path.exists(example_language_spec_path)}")
+                if os.path.exists(example_language_spec_path):
+                    source_files = []
+                    for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
+                        source_files.extend(
+                            [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
+                        )
+                    print(f"{source_files=}")
+
+                    for source_file in source_files:
+                        text = open(source_file).read()
+                        print("looking for match")
+                        matches = pattern_start.finditer(text)
+                        for match in matches:
+                            block_name = match.group(2)
+                            end_of_matching_start_line = match.span()[1]
+                            end_block = pattern_end.search(text[end_of_matching_start_line:])
+                            start_of_matching_end_line = end_block.span()[0]
+                            print(
+                                f"{end_block=}, code snippet goes between: {end_of_matching_start_line=} and {end_of_matching_start_line+start_of_matching_end_line}"
+                            )
+                            code_snippet = text[
+                                end_of_matching_start_line : end_of_matching_start_line + start_of_matching_end_line
+                            ]
+                            print(f"{code_snippet=}")
+
+                            code_blocks[example][spec][language][block_name] = code_snippet
+
+    return code_blocks
+
+
+def _generate_example_docs(root_path, examples_path, examples, languages_and_specs):
+    print()
+    print("Generating example docs")
+    os.makedirs(root_path.joinpath("output").joinpath("examples"), exist_ok=True)
+
+    code_blocks = _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs)
+    print(code_blocks)
+
+    pattern = re.compile("<!-- Annotated code block - (.*) -->")
+
+    for example in examples:
+        print(f"Example: {example}")
+        input_path = examples_path.joinpath(example).joinpath("README.md")
+        output_path = root_path.joinpath("output").joinpath("examples").joinpath(f"{example}.mdx")
+        print(f"reading from: {input_path}, writing to: {output_path=}")
+
+        if os.path.exists(input_path):
+            with open(input_path, "r") as input_readme:
+                with open(output_path, "w") as output_readme:
+                    output_readme.write("import Tabs from '@theme/Tabs';\n")
+                    output_readme.write("import TabItem from '@theme/TabItem';\n")
+
+                    for line in input_readme:
+                        block = pattern.match(line)
+                        if block:
+                            found_any = False
+                            block_name = block.group(1)
+
+                            output_readme.write("<Tabs>\n")
+                            for spec in code_blocks[example]:
+                                for language in code_blocks[example][spec]:
+                                    if block_name in code_blocks[example][spec][language]:
+                                        output_readme.write(
+                                            f'<TabItem value="{language}-{spec}" label="{language}-{spec}">\n'
+                                        )
+                                        output_readme.write(f"```{language}\n")
+                                        output_readme.write(code_blocks[example][spec][language][block_name])
+                                        output_readme.write(f"\n```\n")
+                                        output_readme.write("</TabItem>\n")
+
+                                        found_any = True
+
+                            if not found_any:
+                                output_readme.write(f'<TabItem value="None available" label="None available">\n')
+                                output_readme.write("TODO: No code snippets available for this example\n")
+                                output_readme.write("</TabItem>\n")
+
+                            output_readme.write("</Tabs>\n")
+
+                            # if example in code_blocks:
+                            #     output_readme.write(f"found these blocks: {code_blocks[example]}")
+                            # else:
+                            #     output_readme.write("TODO: No code examples available for this section")
+                        else:
+                            output_readme.write(line)
+
+        # with open(output_path, 'w') as f:
+        #     f.write('\n')
+        #     f.write(details)
+        #     f.write(results)
+        #     f.write('\n')
+
+
 if __name__ == "__main__":
-    print('Identifying and running available examples')
-    root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == 'scripts' else pathlib.Path.cwd()
-    examples_path = root_path.joinpath('consumer-features')
-    languages_path = root_path.joinpath('languages')
+    print("Identifying and running available examples")
+    root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "scripts" else pathlib.Path.cwd()
+    examples_path = root_path.joinpath("consumer-features")
+    languages_path = root_path.joinpath("languages")
 
     languages_and_specs = _get_languages_and_specs(languages_path)
+    print(f"{languages_and_specs=}")
 
     examples = _get_examples(examples_path)
-    print(f'Found: {examples=}')
+    print(f"Found: {examples=}")
     tmpdir = tempfile.TemporaryDirectory()
-    print('Attempt to build all available, and create a table of all permutations')
-    languages_and_examples_and_specs_table = _run_examples(examples_path, languages_and_specs, examples, tmpdir=tmpdir)
-
     # print('Attempt to build all available, and create a table of all permutations')
-    # languages_and_specs_table = _build_images(languages_path, languages_and_specs)
+    # languages_and_examples_and_specs_table = _run_examples(examples_path, languages_and_specs, examples, tmpdir=tmpdir)
     #
-    details = textwrap.dedent("""\
-        # Language and spec support for each example
+    # # print('Attempt to build all available, and create a table of all permutations')
+    # # languages_and_specs_table = _build_images(languages_path, languages_and_specs)
+    # #
+    # details = textwrap.dedent("""\
+    #     # Language and spec support for each example
+    #
+    #     For each language and spec version identified, is there a corresponding Makefile within an example folder to run against.
+    #     - Yes: Example runs successfully, and generates the expected Pactfile (Consumer), or verifies successfully against the provided Pactfile (Provider)
+    #     - -: No example to test found
+    #     - Error: Found an example, but the test was unsuccessful
+    #
+    # """)
+    # results = tabulate(languages_and_examples_and_specs_table, headers="firstrow", tablefmt="github")
+    #
+    # print()
+    # print(' STORE BELOW IN .MD')
+    # print('=====================')
+    # print(details)
+    # print(results)
+    # print()
+    # print('=====================')
+    # print(' END')
+    #
+    # output_path = root_path.joinpath('output').joinpath('consumer-feature-examples.md')
+    # print(f'writing to: {output_path=}')
+    # with open(output_path, 'w') as f:
+    #     f.write('\n')
+    #     f.write(details)
+    #     f.write(results)
+    #     f.write('\n')
 
-        For each language and spec version identified, is there a corresponding Makefile within an example folder to run against.
-        - Yes: Example runs successfully, and generates the expected Pactfile (Consumer), or verifies successfully against the provided Pactfile (Provider)
-        - -: No example to test found
-        - Error: Found an example, but the test was unsuccessful
-
-    """)
-    results = tabulate(languages_and_examples_and_specs_table, headers="firstrow", tablefmt="github")
-
-    print()
-    print(' STORE BELOW IN .MD')
-    print('=====================')
-    print(details)
-    print(results)
-    print()
-    print('=====================')
-    print(' END')
-
-    output_path = root_path.joinpath('output').joinpath('consumer-feature-examples.md')
-    print(f'writing to: {output_path=}')
-    with open(output_path, 'w') as f:
-        f.write('\n')
-        f.write(details)
-        f.write(results)
-        f.write('\n')
+    _generate_example_docs(root_path, examples_path, examples, languages_and_specs)
