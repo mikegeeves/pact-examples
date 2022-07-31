@@ -65,4 +65,12 @@ build: ## Build the various Docker images
 consumer-feature-examples: deps build ## Run the various Pact Consumer feature examples
 	scripts/run_consumer_feature_examples.sh
 
-examples: consumer-feature-examples ## Run all the examples
+examples: build consumer-feature-examples ## Run all the examples
+
+serve-docusaurus: examples ## Build the examples then spin up a docker docusaurus, with the output dir available
+	@echo "\n${green}Docs will be available under:${sgr0}"
+	@echo " - http://localhost:3000/docs/pact-examples"
+	@echo " - http://localhost:3000/docs/output/build"
+	@echo " - http://localhost:3000/docs/output/consumer-feature-examples"
+	@echo
+	cd docusaurus && docker-compose up

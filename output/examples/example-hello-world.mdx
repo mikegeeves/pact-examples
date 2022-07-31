@@ -1,5 +1,6 @@
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
 # example-hello-world
 
 This is a very basic Pact example, demonstrating the simplest use of a Pact Consumer
@@ -10,8 +11,8 @@ To create a Pact, we first need to define a relationship between Consumer and Pr
 
 <Tabs>
 <TabItem value="python-v2" label="python-v2">
-```python
 
+```python
     pact = Consumer("BearServiceClient").has_pact_with(
         Provider("BearService"),
         host_name=PACT_MOCK_HOST,
@@ -19,7 +20,7 @@ To create a Pact, we first need to define a relationship between Consumer and Pr
         pact_dir=PACT_DIR,
         log_dir=LOG_DIR,
     )
-    ```
+```
 </TabItem>
 </Tabs>
 
@@ -29,8 +30,8 @@ Each Pact is declared in a "given, when, then" style.
 
 <Tabs>
 <TabItem value="python-v2" label="python-v2">
-```python
 
+```python
     (
         pact.given("Some bears exist")
         .upon_receiving("a request for the Polar bear species")
@@ -48,7 +49,7 @@ Each Pact is declared in a "given, when, then" style.
 
         # Make sure that all interactions defined occurred
         pact.verify()
-    ```
+```
 </TabItem>
 </Tabs>
 
@@ -58,6 +59,7 @@ Some other code snippets would go here when we have some
 
 <Tabs>
 <TabItem value="None available" label="None available">
+
 TODO: No code snippets available for this example
 </TabItem>
 </Tabs>

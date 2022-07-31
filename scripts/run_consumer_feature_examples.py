@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-import re
-from collections import defaultdict
 
-from bs4 import BeautifulSoup
-
-import pypandoc
 import glob
 import json
 import os
 import pathlib
+import re
 import tempfile
 import textwrap
 from tempfile import TemporaryDirectory
+
 import docker
+import markdown
+from bs4 import BeautifulSoup
+from deepdiff import DeepDiff
 from docker.errors import ContainerError, ImageNotFound
 from tabulate import tabulate
-from deepdiff import DeepDiff
+
 from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
-from mdutils.fileutils.fileutils import MarkDownFile
-from docker.types import Mount
-import markdown
 
 
 def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
@@ -127,9 +124,12 @@ def _run_examples(
                 # This will extract the FIRST PARAGRAPH from the Markdown
                 soup = BeautifulSoup(html, "html.parser")
                 description = [x.text for x in list(soup.children) if x.name == "p"][0]
+            example_link = f"**[{example}](examples/{example})**"
         else:
             description = f"No example README.md found"
-        example_results = [f"**{example}**", description]
+            # The README doesn't exist, so don't try to link to it
+            example_link = f"**{example}**"
+        example_results = [example_link, description]
         for language in languages_and_specs.languages:
             for spec in languages_and_specs.specs:
                 makefile = (
@@ -233,7 +233,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
             with open(input_path, "r") as input_readme:
                 with open(output_path, "w") as output_readme:
                     output_readme.write("import Tabs from '@theme/Tabs';\n")
-                    output_readme.write("import TabItem from '@theme/TabItem';\n")
+                    output_readme.write("import TabItem from '@theme/TabItem';\n\n")
 
                     for line in input_readme:
                         block = pattern.match(line)
@@ -246,17 +246,17 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                                 for language in code_blocks[example][spec]:
                                     if block_name in code_blocks[example][spec][language]:
                                         output_readme.write(
-                                            f'<TabItem value="{language}-{spec}" label="{language}-{spec}">\n'
+                                            f'<TabItem value="{language}-{spec}" label="{language}-{spec}">\n\n'
                                         )
-                                        output_readme.write(f"```{language}\n")
-                                        output_readme.write(code_blocks[example][spec][language][block_name])
-                                        output_readme.write(f"\n```\n")
+                                        output_readme.write(f"```{language}")
+                                        output_readme.write(code_blocks[example][spec][language][block_name].rstrip())
+                                        output_readme.write("\n```\n")
                                         output_readme.write("</TabItem>\n")
 
                                         found_any = True
 
                             if not found_any:
-                                output_readme.write(f'<TabItem value="None available" label="None available">\n')
+                                output_readme.write(f'<TabItem value="None available" label="None available">\n\n')
                                 output_readme.write("TODO: No code snippets available for this example\n")
                                 output_readme.write("</TabItem>\n")
 
@@ -288,38 +288,40 @@ if __name__ == "__main__":
     examples = _get_examples(examples_path)
     print(f"Found: {examples=}")
     tmpdir = tempfile.TemporaryDirectory()
+    print("Attempt to build all available, and create a table of all permutations")
+    languages_and_examples_and_specs_table = _run_examples(examples_path, languages_and_specs, examples, tmpdir=tmpdir)
+
     # print('Attempt to build all available, and create a table of all permutations')
-    # languages_and_examples_and_specs_table = _run_examples(examples_path, languages_and_specs, examples, tmpdir=tmpdir)
+    # languages_and_specs_table = _build_images(languages_path, languages_and_specs)
     #
-    # # print('Attempt to build all available, and create a table of all permutations')
-    # # languages_and_specs_table = _build_images(languages_path, languages_and_specs)
-    # #
-    # details = textwrap.dedent("""\
-    #     # Language and spec support for each example
-    #
-    #     For each language and spec version identified, is there a corresponding Makefile within an example folder to run against.
-    #     - Yes: Example runs successfully, and generates the expected Pactfile (Consumer), or verifies successfully against the provided Pactfile (Provider)
-    #     - -: No example to test found
-    #     - Error: Found an example, but the test was unsuccessful
-    #
-    # """)
-    # results = tabulate(languages_and_examples_and_specs_table, headers="firstrow", tablefmt="github")
-    #
-    # print()
-    # print(' STORE BELOW IN .MD')
-    # print('=====================')
-    # print(details)
-    # print(results)
-    # print()
-    # print('=====================')
-    # print(' END')
-    #
-    # output_path = root_path.joinpath('output').joinpath('consumer-feature-examples.md')
-    # print(f'writing to: {output_path=}')
-    # with open(output_path, 'w') as f:
-    #     f.write('\n')
-    #     f.write(details)
-    #     f.write(results)
-    #     f.write('\n')
+    details = textwrap.dedent(
+        """\
+        # Language and spec support for each example
+
+        For each language and spec version identified, is there a corresponding Makefile within an example folder to run against.
+
+        - `Yes`: Example runs successfully, and generates the expected Pactfile (Consumer), or verifies successfully against the provided Pactfile (Provider)
+        - `-`: No example to test found
+        - `Error`: Found an example, but the test was unsuccessful
+
+    """
+    )
+    results = tabulate(languages_and_examples_and_specs_table, headers="firstrow", tablefmt="github")
+
+    print()
+    print(" STORE BELOW IN .MD")
+    print("=====================")
+    print(details)
+    print(results)
+    print()
+    print("=====================")
+    print(" END")
+
+    output_path = root_path.joinpath("output").joinpath("consumer-feature-examples.md")
+    print(f"writing to: {output_path=}")
+    with open(output_path, "w") as f:
+        f.write(details)
+        f.write(results)
+        f.write("\n")
 
     _generate_example_docs(root_path, examples_path, examples, languages_and_specs)

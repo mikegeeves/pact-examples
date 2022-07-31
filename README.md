@@ -98,26 +98,19 @@ TODO: ruby vs rust, cli, docker, ..maven etc?
 TODO: features such as tags? envs? etc?
 ```
 
-## Additionally generated artifacts
+## Additional generated artifacts
 
 ### Docusaurus
-
-```
-TODO:
-    It should be possible to take the README from an example, include places
-    where code fragments should go, and by annotating code somehow identify the
-    relevant blocks. That can then get pulled into a code tabbed Docusaurus page
-    ..somehow
-```
-
-IN PROGRESS!
 
 Since each example has a single README, it can be shared across the various languages.
 This is done by commenting in the README where an expected code block would go,
 and then annotating lines marking the start and end of a code block.
 
 In the example README, the annotation looks like:
-`<!-- Annotated code block - Setting up the Consumer -->`
+
+`<!-- Pact annotated code block - Setting up the Consumer -->` for TypeScript/Javascript, or
+
+`# Pact annotated code block - Setting up the Consumer` for Python
 
 Here, the title of the block is "Setting up the Consumer".
 
@@ -136,6 +129,8 @@ pact = Consumer("BearServiceClient").has_pact_with(
 ```
 
 When running the examples, a .mdx file containing Tabs is generated under output/examples
+
+To build, run examples, and spin up Docusaurus locally to serve the results: `make serve-docusaurus`
 
 ### Killercoda
 
