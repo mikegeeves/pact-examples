@@ -1,2 +1,2 @@
 test:
-	echo "hello world"
+	npm run test
