@@ -7,15 +7,19 @@ from pathlib import Path
 
 from tabulate import tabulate
 
-from shared import LanguagesAndSpecs, RESULT, _get_languages_and_specs
+from shared import LanguagesAndSpecs, RESULT, _get_languages_and_specs, bcolors
 
 
 def _build_image(language: str, spec: str, dockerfile: Path):
-    print(f"\n - Attempting to build {dockerfile=} for {language=}, {spec=}")
+    print(
+        f"\n{bcolors.HEADER} - Attempting to build {dockerfile=} for {bcolors.OKBLUE}{language=}{bcolors.HEADER}, {bcolors.OKBLUE}{spec=}{bcolors.ENDC}"
+    )
     command = ["docker", "build", ".", "-t", f"pact-examples-{language}-{spec}"]
     print(" ".join(command))
     p = subprocess.run(command, cwd=str(dockerfile.parent))
-    print(f" - Result: {RESULT[p.returncode]}")
+
+    colour = bcolors.OKGREEN if p.returncode == 0 else bcolors.FAIL
+    print(f"{colour} - Result: {RESULT[p.returncode]}{bcolors.ENDC}")
     return p.returncode
 
 
@@ -37,7 +41,7 @@ def _build_images(languages_path: pathlib.Path, languages_and_specs: LanguagesAn
 
 
 if __name__ == "__main__":
-    print("Identifying and building available Docker images")
+    print(f"{bcolors.HEADER}{bcolors.BOLD}Identifying and building available Docker images{bcolors.ENDC}")
     root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "scripts" else pathlib.Path.cwd()
     languages_path = root_path.joinpath("languages")
 

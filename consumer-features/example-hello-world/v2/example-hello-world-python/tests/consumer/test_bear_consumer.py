@@ -20,11 +20,12 @@ PACT_MOCK_PORT = 1234
 
 # Where to output the JSON Pact files created by any tests
 # This is optional, but means we can keep it tidier than everything going in together
-PACT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", 'output', "pacts")
+PACT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "output", "pacts")
 
 # Where to output the pact-mock-service.log to
 # This is optional, but means we can keep it tidier than everything going in together
 LOG_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "output", "logs")
+
 
 @pytest.fixture
 def consumer() -> BearConsumer:
@@ -82,7 +83,7 @@ def test_get_polar_bear(pact, consumer):
     (
         pact.given("Some bears exist")
         .upon_receiving("a request for the Polar bear species")
-        .with_request("get", "/species/Polar")
+        .with_request("GET", "/species/Polar")
         .will_respond_with(200, body=expected)
     )
 

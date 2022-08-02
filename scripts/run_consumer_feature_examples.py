@@ -16,7 +16,7 @@ from deepdiff import DeepDiff
 from docker.errors import ContainerError, ImageNotFound
 from tabulate import tabulate
 
-from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
+from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs, bcolors
 
 
 def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
@@ -38,18 +38,34 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
             expected["consumer"]["name"] = expected["consumer"]["name"].replace("LANGUAGE", language)
             expected["provider"]["name"] = expected["provider"]["name"].replace("LANGUAGE", language)
 
+            # Make request method always upper case
+            # This applies for non-message Pacts
+            if "interactions" in expected:
+                for interaction in expected["interactions"]:
+                    interaction["request"]["method"] = interaction["request"]["method"].upper()
+                for interaction in actual["interactions"]:
+                    interaction["request"]["method"] = interaction["request"]["method"].upper()
+
             diff = DeepDiff(actual, expected)
             if diff:
-                print("Pacts were not identical!")
+                print(f"{bcolors.FAIL}Pacts were not identical!{bcolors.ENDC}")
                 print(diff)
                 result = 1
+            else:
+                print(f"{bcolors.OKGREEN}Pacts matched!{bcolors.ENDC}")
         else:
             result = 1
     return result
 
 
 def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: TemporaryDirectory):
-    print(f"-> _run_example({language=}, {spec=}, {example_dir=}")
+    print(
+        f"{bcolors.HEADER}-> _run_example("
+        f"{bcolors.OKBLUE}{language=}{bcolors.HEADER}, "
+        f"{bcolors.OKBLUE}{spec=}{bcolors.HEADER}, "
+        f"{bcolors.OKBLUE}{example_dir=}{bcolors.HEADER}"
+        f"{bcolors.ENDC}"
+    )
     client = docker.from_env()
 
     image = f"pact-examples-{language}-{spec}"
@@ -93,7 +109,8 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
             print(f"logs: {container.logs()}")
             container.remove()
 
-    print(f"<- _run_example, returning: {result=}")
+    colour = bcolors.OKGREEN if result == 0 else bcolors.FAIL
+    print(f"{bcolors.HEADER}<- _run_example, returning:  {colour}{result=}{bcolors.ENDC}")
     return result
 
 
@@ -160,10 +177,11 @@ def _get_examples(examples_path: pathlib.Path) -> list[str]:
 
 def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
     extensions = ["py", "js", "ts"]
+    excluded_dirs = ["node_modules"]
 
     # pattern_start = re.compile('(#|//) Pact annotated code block - (.*)\n(.*)End')
-    pattern_start = re.compile("(#|//) Pact annotated code block - (.*)")
-    pattern_end = re.compile("(#|//) End Pact annotated code block")
+    pattern_start = re.compile("(#|//)\s+Pact annotated code block - (.*)")
+    pattern_end = re.compile("(#|//)\s+End Pact annotated code block")
 
     code_blocks = {}
 
@@ -176,7 +194,7 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
                 code_blocks[example][spec][language] = {}
 
     for example in examples:
-        print(f"Looking for code blocks relating to: {example=}")
+        print(f"{bcolors.HEADER}Looking for code blocks relating to: {bcolors.OKBLUE}{example=}{bcolors.ENDC}")
         for spec in languages_and_specs.specs:
             for language in languages_and_specs.languages:
                 example_language_spec_path = (
@@ -186,14 +204,15 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
                 if os.path.exists(example_language_spec_path):
                     source_files = []
                     for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
-                        source_files.extend(
-                            [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
-                        )
+                        # TODO: exclude based on some list rather than single hardcoded
+                        if not any([f"/{exclude}" in root for exclude in excluded_dirs]):
+                            source_files.extend(
+                                [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
+                            )
                     print(f"{source_files=}")
 
                     for source_file in source_files:
                         text = open(source_file).read()
-                        print("looking for match")
                         matches = pattern_start.finditer(text)
                         for match in matches:
                             block_name = match.group(2)
@@ -215,7 +234,7 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
 
 def _generate_example_docs(root_path, examples_path, examples, languages_and_specs):
     print()
-    print("Generating example docs")
+    print(f"{bcolors.HEADER}{bcolors.BOLD}Generating example docs{bcolors.ENDC}")
     os.makedirs(root_path.joinpath("output").joinpath("examples"), exist_ok=True)
 
     code_blocks = _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs)
@@ -224,7 +243,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
     pattern = re.compile("<!-- Annotated code block - (.*) -->")
 
     for example in examples:
-        print(f"Example: {example}")
+        print(f"{bcolors.HEADER}Example: {example}{bcolors.ENDC}")
         input_path = examples_path.joinpath(example).joinpath("README.md")
         output_path = root_path.joinpath("output").joinpath("examples").joinpath(f"{example}.mdx")
         print(f"reading from: {input_path}, writing to: {output_path=}")
@@ -277,7 +296,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
 
 
 if __name__ == "__main__":
-    print("Identifying and running available examples")
+    print(f"{bcolors.HEADER}{bcolors.BOLD}Identifying and running available examples{bcolors.ENDC}")
     root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "scripts" else pathlib.Path.cwd()
     examples_path = root_path.joinpath("consumer-features")
     languages_path = root_path.joinpath("languages")
