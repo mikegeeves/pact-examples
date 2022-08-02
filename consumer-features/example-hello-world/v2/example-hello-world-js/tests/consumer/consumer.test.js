@@ -6,7 +6,11 @@ const api = require("../../src/consumer").api;
 
 // Pact annotated code block - Setting up the Consumer
 pactWith(
-  { consumer: "BearServiceClient", provider: "BearService" },
+  {
+    consumer: "BearServiceClient",
+    provider: "BearService",
+    dir: "./output/pacts",
+  },
   // End Pact annotated code block
   (provider) => {
     let client;
