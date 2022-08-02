@@ -10,6 +10,24 @@ This is a very basic Pact example, demonstrating the simplest use of a Pact Cons
 To create a Pact, we first need to define a relationship between Consumer and Provider.
 
 <Tabs>
+<TabItem value="js-v2" label="js-v2">
+
+```js
+// (2) Configure our Pact library
+const mockProvider = new Pact({
+  consumer: "BearServiceClient",
+  provider: "BearService",
+  cors: true,
+  dir: "./output/pacts",
+});
+
+describe("Bear API test", () => {
+  // (3) Setup Pact lifecycle hooks
+  before(() => mockProvider.setup());
+  afterEach(() => mockProvider.verify());
+  after(() => mockProvider.finalize());
+```
+</TabItem>
 <TabItem value="python-v2" label="python-v2">
 
 ```python
@@ -29,6 +47,36 @@ To create a Pact, we first need to define a relationship between Consumer and Pr
 Each Pact is declared in a "given, when, then" style.
 
 <Tabs>
+<TabItem value="js-v2" label="js-v2">
+
+```js
+    // (4) Arrange
+    const expectedResponse = {
+      name: "Polar",
+      colour: "White",
+    };
+
+    await mockProvider.addInteraction({
+      state: "Some bears exist",
+      uponReceiving: "a request for the Polar bear species",
+      willRespondWith: {
+        status: 200,
+        body: expectedResponse,
+      },
+      withRequest: {
+        method: "GET",
+        path: "/species/Polar",
+      },
+    });
+
+    // (5) Act
+    const api = new BearApiClient(mockProvider.mockService.baseUrl);
+    const bear = await api.getSpecies("Polar");
+
+    // (6) Assert that we got the expected response
+    expect(bear).to.deep.equal(new Bear("Polar", "White"));
+```
+</TabItem>
 <TabItem value="python-v2" label="python-v2">
 
 ```python
