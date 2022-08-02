@@ -1,22 +1,17 @@
 {
   "name": "example-hello-world-js",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "type": "commonjs",
-  "scripts": {
-    "test": "jest --test-timeout 30000"
-  },
-  "author": "Yousaf Nabi",
-  "license": "MIT",
+  "version": "0.1.0",
   "dependencies": {
-    "@pact-foundation/pact": "9.18.1",
-    "axios": "^0.27.2"
+    "axios": "^0.27.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.1"
+  },
+  "scripts": {
+    "test": "mocha --exit --timeout 30000 tests/consumer/consumer.pact.spec.js"
   },
   "devDependencies": {
-    "jest-pact": "^0.9.4"
+    "@pact-foundation/pact": "9.18.1",
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0"
   }
 }
