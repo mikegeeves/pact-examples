@@ -1,0 +1,22 @@
+{
+  "name": "example-hello-world-js-jest-pact",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "test": "jest --test-timeout 30000"
+  },
+  "author": "Yousaf Nabi",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "9.18.1",
+    "jest-pact": "^0.9.4"
+  }
+}
