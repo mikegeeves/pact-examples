@@ -7,7 +7,7 @@ const defaultBaseUrl = "http://your-api.example.com";
 const api = (baseUrl = defaultBaseUrl) => ({
   getSpecies: (name) =>
     axios.get(`${baseUrl}/species/` + name).then((response) => {
-      return { name: response.data.name, colour: response.data.colour };
+      return Bear(response.data.name, response.data.colour);
     }),
 });
 

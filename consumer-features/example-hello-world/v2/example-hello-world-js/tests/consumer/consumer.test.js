@@ -4,8 +4,10 @@ const pactWith = require("jest-pact").pactWith;
 const api = require("../../src/consumer").api;
 // import api from "../../src/consumer";
 
+// Pact annotated code block - Setting up the Consumer
 pactWith(
   { consumer: "BearServiceClient", provider: "BearService" },
+  // End Pact annotated code block
   (provider) => {
     let client;
 
@@ -14,6 +16,7 @@ pactWith(
     });
 
     describe("test bear endpoint", () => {
+      //  Pact annotated code block - Defining the pact, and calling the consumer
       const expectedResponse = {
         name: "Polar",
         colour: "White",
@@ -38,6 +41,7 @@ pactWith(
           expect(resp).toEqual(expectedResponse);
         });
       });
+      //  End Pact annotated code block
     });
   }
 );
