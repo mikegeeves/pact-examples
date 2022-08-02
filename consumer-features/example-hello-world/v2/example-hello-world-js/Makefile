@@ -1,2 +1,2 @@
 test:
-	todo
+	npm install && npm run test
