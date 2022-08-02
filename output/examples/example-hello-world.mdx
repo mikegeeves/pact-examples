@@ -35,7 +35,7 @@ Each Pact is declared in a "given, when, then" style.
     (
         pact.given("Some bears exist")
         .upon_receiving("a request for the Polar bear species")
-        .with_request("get", "/species/Polar")
+        .with_request("GET", "/species/Polar")
         .will_respond_with(200, body=expected)
     )
 

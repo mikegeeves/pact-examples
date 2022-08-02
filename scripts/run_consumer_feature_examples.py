@@ -38,6 +38,13 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
             expected["consumer"]["name"] = expected["consumer"]["name"].replace("LANGUAGE", language)
             expected["provider"]["name"] = expected["provider"]["name"].replace("LANGUAGE", language)
 
+            # Make request method always upper case
+            if "interactions" in expected:
+                for interaction in expected["interactions"]:
+                    interaction["request"]["method"] = interaction["request"]["method"].upper()
+                for interaction in actual["interactions"]:
+                    interaction["request"]["method"] = interaction["request"]["method"].upper()
+
             diff = DeepDiff(actual, expected)
             if diff:
                 print("Pacts were not identical!")
