@@ -11,14 +11,9 @@ const mockProvider = new PactV3({
   cors: true,
   dir: "./output/pacts",
 });
+// End Pact annotated code block
 
 describe("Bear API test", () => {
-  // (3) Setup Pact lifecycle hooks
-  // before(() => mockProvider.setup());
-  // afterEach(() => mockProvider.verify());
-  // after(() => mockProvider.finalize());
-  // End Pact annotated code block
-
   it("get bear by name", async () => {
     //  Pact annotated code block - Defining the pact, and calling the consumer
     // (4) Arrange
