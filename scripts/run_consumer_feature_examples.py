@@ -38,6 +38,14 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
             expected["consumer"]["name"] = expected["consumer"]["name"].replace("LANGUAGE", language)
             expected["provider"]["name"] = expected["provider"]["name"].replace("LANGUAGE", language)
 
+            # Make request method always upper case
+            # This applies for non-message Pacts
+            if "interactions" in expected:
+                for interaction in expected["interactions"]:
+                    interaction["request"]["method"] = interaction["request"]["method"].upper()
+                for interaction in actual["interactions"]:
+                    interaction["request"]["method"] = interaction["request"]["method"].upper()
+
             diff = DeepDiff(actual, expected)
             if diff:
                 print("Pacts were not identical!")
@@ -160,10 +168,11 @@ def _get_examples(examples_path: pathlib.Path) -> list[str]:
 
 def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
     extensions = ["py", "js", "ts"]
+    excluded_dirs = ['node_modules']
 
     # pattern_start = re.compile('(#|//) Pact annotated code block - (.*)\n(.*)End')
-    pattern_start = re.compile("(#|//) Pact annotated code block - (.*)")
-    pattern_end = re.compile("(#|//) End Pact annotated code block")
+    pattern_start = re.compile("(#|//)\s+Pact annotated code block - (.*)")
+    pattern_end = re.compile("(#|//)\s+End Pact annotated code block")
 
     code_blocks = {}
 
@@ -186,14 +195,15 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
                 if os.path.exists(example_language_spec_path):
                     source_files = []
                     for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
-                        source_files.extend(
-                            [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
-                        )
+                        # TODO: exclude based on some list rather than single hardcoded
+                        if not any([f'/{exclude}' in root for exclude in excluded_dirs]):
+                            source_files.extend(
+                                [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
+                            )
                     print(f"{source_files=}")
 
                     for source_file in source_files:
                         text = open(source_file).read()
-                        print("looking for match")
                         matches = pattern_start.finditer(text)
                         for match in matches:
                             block_name = match.group(2)

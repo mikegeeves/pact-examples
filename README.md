@@ -194,3 +194,8 @@ From the logs (TODO: logging levels)
 Pacts were not identical!
 {'values_changed': {"root['metadata']['pactSpecification']['version']": {'new_value': '2.0.0', 'old_value': '3.0.0'}}}
 ```
+
+# TODO:
+
+- find out where everywhere else outputs pacts to, e.g. python does pacts and (?) for logs, js does pact/pacts and pacts/logs
+- how to actually do the build and versions, dependabot? -> How to handle e.g. different JVM branch versions, we kind of want the Pact version to be more fixed and not auto upgrade

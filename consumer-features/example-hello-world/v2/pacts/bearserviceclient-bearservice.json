@@ -10,7 +10,7 @@
       "description": "a request for the Polar bear species",
       "providerState": "Some bears exist",
       "request": {
-        "method": "get",
+        "method": "GET",
         "path": "/species/Polar"
       },
       "response": {
