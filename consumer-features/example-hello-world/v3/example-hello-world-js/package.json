@@ -1,0 +1,17 @@
+{
+  "name": "example-hello-world-js",
+  "version": "0.1.0",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.1"
+  },
+  "scripts": {
+    "test": "mocha --exit --timeout 30000 tests/consumer/consumer.pact.spec*"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "^10.0.1",
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0"
+  }
+}
