@@ -5,7 +5,8 @@
     "axios": "^0.27.2"
   },
   "scripts": {
-    "test": "mocha --exit --timeout 30000 tests/consumer/consumer.pact.spec*"
+    "test": "mocha --exit --timeout 30000 tests/consumer/consumer.pact.spec*",
+    "pretest": "npm install"
   },
   "devDependencies": {
     "@pact-foundation/pact": "^10.0.1",

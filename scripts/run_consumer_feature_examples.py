@@ -24,7 +24,11 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
         [pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
     )
 
-    example_pacts = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/pacts/*")])[0]
+    example_pacts_list = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/pacts/*")])
+
+    example_pacts=[]
+    if len(example_pacts_list) != 0:
+        example_pacts = example_pacts_list[0]
 
     result = 0
     for example_to_compare_against in examples_to_compare_against:
