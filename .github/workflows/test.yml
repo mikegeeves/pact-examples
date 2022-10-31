@@ -6,8 +6,14 @@ on:
 
 jobs:
 
-  act_mac:
+  ubuntu:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: make consumer-feature-examples
+    
+  mac:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - run: make consumer-feature-examples
