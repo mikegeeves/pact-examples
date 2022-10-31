@@ -1,0 +1,15 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+
+  act_mac:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: make consumer-feature-examples
+    
+

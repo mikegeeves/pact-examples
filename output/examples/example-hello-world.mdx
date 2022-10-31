@@ -15,13 +15,13 @@ To create a Pact, we first need to define a relationship between Consumer and Pr
 ```js
 // (2) Configure our Pact library
 const mockProvider = new Pact({
-  consumer: "BearServiceClient",
-  provider: "BearService",
+  consumer: 'BearServiceClient',
+  provider: 'BearService',
   cors: true,
-  dir: "./output/pacts",
+  dir: './output/pacts'
 });
 
-describe("Bear API test", () => {
+describe('Bear API test', () => {
   // (3) Setup Pact lifecycle hooks
   before(() => mockProvider.setup());
   afterEach(() => mockProvider.verify());
@@ -40,6 +40,18 @@ describe("Bear API test", () => {
     )
 ```
 </TabItem>
+<TabItem value="js-v3" label="js-v3">
+
+```js
+// (2) Configure our Pact library
+const mockProvider = new PactV3({
+  consumer: "BearServiceClient",
+  provider: "BearService",
+  cors: true,
+  dir: "./output/pacts",
+});
+```
+</TabItem>
 </Tabs>
 
 ## Pact creation
@@ -52,29 +64,29 @@ Each Pact is declared in a "given, when, then" style.
 ```js
     // (4) Arrange
     const expectedResponse = {
-      name: "Polar",
-      colour: "White",
+      name: 'Polar',
+      colour: 'White'
     };
 
     await mockProvider.addInteraction({
-      state: "Some bears exist",
-      uponReceiving: "a request for the Polar bear species",
+      state: 'Some bears exist',
+      uponReceiving: 'a request for the Polar bear species',
       willRespondWith: {
         status: 200,
-        body: expectedResponse,
+        body: expectedResponse
       },
       withRequest: {
-        method: "GET",
-        path: "/species/Polar",
-      },
+        method: 'GET',
+        path: '/species/Polar'
+      }
     });
 
     // (5) Act
     const api = new BearApiClient(mockProvider.mockService.baseUrl);
-    const bear = await api.getSpecies("Polar");
+    const bear = await api.getSpecies('Polar');
 
     // (6) Assert that we got the expected response
-    expect(bear).to.deep.equal(new Bear("Polar", "White"));
+    expect(bear).to.deep.equal(new Bear('Polar', 'White'));
 ```
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
@@ -97,6 +109,37 @@ Each Pact is declared in a "given, when, then" style.
 
         # Make sure that all interactions defined occurred
         pact.verify()
+```
+</TabItem>
+<TabItem value="js-v3" label="js-v3">
+
+```js
+    // (4) Arrange
+    const expectedResponse = {
+      name: "Polar",
+      colour: "White",
+    };
+
+    mockProvider
+      .given("Some bears exist")
+      .uponReceiving("a request for the Polar bear species")
+      .withRequest({
+        method: "GET",
+        path: "/species/Polar",
+      })
+      .willRespondWith({
+        status: 200,
+        body: expectedResponse,
+      });
+
+    return await mockProvider.executeTest(async (mockserver) => {
+      // (5) Act
+      const api = new BearApiClient(mockserver.url);
+      const bear = await api.getSpecies("Polar");
+
+      // (6) Assert that we got the expected response
+      expect(bear).to.deep.equal(new Bear("Polar", "White"));
+    });
 ```
 </TabItem>
 </Tabs>

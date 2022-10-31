@@ -21,8 +21,9 @@ from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
 
 def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
     examples_to_compare_against = sorted(
-        [pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
+        [pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/output/pacts/*")]
     )
+
 
     example_pacts_list = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/pacts/*")])
 
@@ -34,6 +35,7 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
     for example_to_compare_against in examples_to_compare_against:
         print(f"Looking to see if {example_to_compare_against=} is provided by one of {example_pacts=}")
         if example_to_compare_against.replace("LANGUAGE", language) in example_pacts:
+            print(f"{examples_path}/{example}/{spec}/pacts/{example_to_compare_against}")
             with open(f"{examples_path}/{example}/{spec}/pacts/{example_to_compare_against}") as json_expected:
                 expected = json.load(json_expected)
             with open(f"{tmpdir.name}/pacts/{example_to_compare_against.replace('LANGUAGE', language)}") as json_actual:
