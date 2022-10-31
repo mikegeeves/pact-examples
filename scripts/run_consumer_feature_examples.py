@@ -24,12 +24,18 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
         [pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
     )
 
-    example_pacts = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/pacts/*")])[0]
+
+    example_pacts_list = sorted([pathlib.Path(x).name for x in glob.glob(f"{tmpdir.name}/pacts/*")])
+
+    example_pacts=[]
+    if len(example_pacts_list) != 0:
+        example_pacts = example_pacts_list[0]
 
     result = 0
     for example_to_compare_against in examples_to_compare_against:
         print(f"Looking to see if {example_to_compare_against=} is provided by one of {example_pacts=}")
         if example_to_compare_against.replace("LANGUAGE", language) in example_pacts:
+            print(f"{examples_path}/{example}/{spec}/pacts/{example_to_compare_against}")
             with open(f"{examples_path}/{example}/{spec}/pacts/{example_to_compare_against}") as json_expected:
                 expected = json.load(json_expected)
             with open(f"{tmpdir.name}/pacts/{example_to_compare_against.replace('LANGUAGE', language)}") as json_actual:
