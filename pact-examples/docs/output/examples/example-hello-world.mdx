@@ -1,0 +1,156 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# example-hello-world
+
+This is a very basic Pact example, demonstrating the simplest use of a Pact Consumer
+
+## Consumer setup
+
+To create a Pact, we first need to define a relationship between Consumer and Provider.
+
+<Tabs>
+<TabItem value="js-v2" label="js-v2">
+
+```js
+// (2) Configure our Pact library
+const mockProvider = new Pact({
+  consumer: 'BearServiceClient',
+  provider: 'BearService',
+  cors: true,
+  dir: './output/pacts'
+});
+
+describe('Bear API test', () => {
+  // (3) Setup Pact lifecycle hooks
+  before(() => mockProvider.setup());
+  afterEach(() => mockProvider.verify());
+  after(() => mockProvider.finalize());
+```
+</TabItem>
+<TabItem value="python-v2" label="python-v2">
+
+```python
+    pact = Consumer("BearServiceClient").has_pact_with(
+        Provider("BearService"),
+        host_name=PACT_MOCK_HOST,
+        port=PACT_MOCK_PORT,
+        pact_dir=PACT_DIR,
+        log_dir=LOG_DIR,
+    )
+```
+</TabItem>
+<TabItem value="js-v3" label="js-v3">
+
+```js
+// (2) Configure our Pact library
+const mockProvider = new PactV3({
+  consumer: "BearServiceClient",
+  provider: "BearService",
+  cors: true,
+  dir: "./output/pacts",
+});
+```
+</TabItem>
+</Tabs>
+
+## Pact creation
+
+Each Pact is declared in a "given, when, then" style.
+
+<Tabs>
+<TabItem value="js-v2" label="js-v2">
+
+```js
+    // (4) Arrange
+    const expectedResponse = {
+      name: 'Polar',
+      colour: 'White'
+    };
+
+    await mockProvider.addInteraction({
+      state: 'Some bears exist',
+      uponReceiving: 'a request for the Polar bear species',
+      willRespondWith: {
+        status: 200,
+        body: expectedResponse
+      },
+      withRequest: {
+        method: 'GET',
+        path: '/species/Polar'
+      }
+    });
+
+    // (5) Act
+    const api = new BearApiClient(mockProvider.mockService.baseUrl);
+    const bear = await api.getSpecies('Polar');
+
+    // (6) Assert that we got the expected response
+    expect(bear).to.deep.equal(new Bear('Polar', 'White'));
+```
+</TabItem>
+<TabItem value="python-v2" label="python-v2">
+
+```python
+    (
+        pact.given("Some bears exist")
+        .upon_receiving("a request for the Polar bear species")
+        .with_request("GET", "/species/Polar")
+        .will_respond_with(200, body=expected)
+    )
+
+    with pact:
+        # Perform the actual request
+        species = consumer.get_species("Polar")
+
+        # In this case the mock Provider will have returned a valid response
+        assert species.name == "Polar"
+        assert species.colour == "White"
+
+        # Make sure that all interactions defined occurred
+        pact.verify()
+```
+</TabItem>
+<TabItem value="js-v3" label="js-v3">
+
+```js
+    // (4) Arrange
+    const expectedResponse = {
+      name: "Polar",
+      colour: "White",
+    };
+
+    mockProvider
+      .given("Some bears exist")
+      .uponReceiving("a request for the Polar bear species")
+      .withRequest({
+        method: "GET",
+        path: "/species/Polar",
+      })
+      .willRespondWith({
+        status: 200,
+        body: expectedResponse,
+      });
+
+    return await mockProvider.executeTest(async (mockserver) => {
+      // (5) Act
+      const api = new BearApiClient(mockserver.url);
+      const bear = await api.getSpecies("Polar");
+
+      // (6) Assert that we got the expected response
+      expect(bear).to.deep.equal(new Bear("Polar", "White"));
+    });
+```
+</TabItem>
+</Tabs>
+
+## Something else
+
+Some other code snippets would go here when we have some
+
+<Tabs>
+<TabItem value="None available" label="None available">
+
+TODO: No code snippets available for this example
+</TabItem>
+</Tabs>
