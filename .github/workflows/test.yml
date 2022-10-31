@@ -18,7 +18,7 @@ jobs:
           npx create-docusaurus@latest pact-examples classic
           cp -R output pact-examples/docs
           cp -R README.md pact-examples/docs/pact-examples.md
-          cd pact/examples
+          cd pact-examples
           npx docusaurus build
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
