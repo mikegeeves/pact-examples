@@ -16,10 +16,10 @@ def _build_image(language: str, spec: str, dockerfile: Path):
         f"\n{bcolors.HEADER} - Attempting to build {dockerfile=} for {bcolors.OKBLUE}{language=}{bcolors.HEADER}, {bcolors.OKBLUE}{spec=}{bcolors.ENDC}"
     )
     
-    if platform.system() != 'Linux':
-        command = ["docker", "build", ".", "-t", f"pact-examples-{language}-{spec}", "--platform","linux/amd64"]
-    else:
-        command = ["docker", "build", ".", "-t", f"pact-examples-{language}-{spec}"]
+    # if platform.system() != 'Linux':
+    #     command = ["docker", "build", ".", "-t", f"pact-examples-{language}-{spec}", "--platform","linux/amd64"]
+    # else:
+    command = ["docker", "build", ".", "-t", f"pact-examples-{language}-{spec}"]
     
     print(" ".join(command))
     p = subprocess.run(command, cwd=str(dockerfile.parent))
