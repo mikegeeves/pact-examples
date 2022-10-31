@@ -5,7 +5,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 
 
-RUN mkdir -f /.npm/_logs && chmod a+w /.npm/_logs
+RUN mkdir -p /.npm/_logs && chmod a+w /.npm/_logs
 # COPY ./ /app/
 # WORKDIR /app
 # RUN npm install
