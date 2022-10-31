@@ -10,7 +10,7 @@
     "test": "mocha --exit --timeout 30000 src/provider.pact.spec.js"
   },
   "devDependencies": {
-    "@pact-foundation/pact": "^10.0.1",
+    "@pact-foundation/pact": "^10.1.4",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   }
