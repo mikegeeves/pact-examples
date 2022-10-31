@@ -21,7 +21,7 @@ from shared import LanguagesAndSpecs, ExamplesAndSpecs, _get_languages_and_specs
 
 def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, example: str, spec: str, language: str):
     examples_to_compare_against = sorted(
-        [pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/output/pacts/*")]
+        [pathlib.Path(x).name for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
     )
 
 
