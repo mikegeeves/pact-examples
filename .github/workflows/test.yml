@@ -17,8 +17,12 @@ jobs:
       - run: make consumer-feature-examples
       - run: |
           npx create-docusaurus@latest pact-examples classic
+          rm -R pact-examples/blog pact-examples/docs/tutorial* pact-examples/docs/intro.md
           cp -R output pact-examples/docs
           cp -R README.md pact-examples/docs/pact-examples.md
+          cp docusaurus/docusaurus.config.js pact-examples/docusaurus.config.js
+          cp docusaurus/HomepageFeatures/index.js pact-examples/src/components/HomepageFeatures/index.js
+          cp docusaurus/pages/index.js pact-examples/src/pages/index.js
           cd pact-examples
           npx docusaurus build
       - name: Commit changes
