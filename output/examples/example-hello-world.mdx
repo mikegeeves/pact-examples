@@ -10,6 +10,13 @@ This is a very basic Pact example, demonstrating the simplest use of a Pact Cons
 To create a Pact, we first need to define a relationship between Consumer and Provider.
 
 <Tabs>
+<TabItem value="js-v2" label="js-v2">
+
+```js
+pactWith(
+  { consumer: "BearServiceClient", provider: "BearService" },
+```
+</TabItem>
 <TabItem value="python-v2" label="python-v2">
 
 ```python

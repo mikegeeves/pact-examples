@@ -8,6 +8,7 @@ __pycache__
 *.egg-info
 *.pyc
 .venv
+.python-version
 
 # IDEs
 .idea

@@ -1,4 +1,5 @@
 PYTHON_MAJOR_VERSION := 3.9
+PROJECT := pact-examples
 
 sgr0 := $(shell tput sgr0)
 red := $(shell tput setaf 1)
