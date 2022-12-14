@@ -160,6 +160,7 @@ def _get_examples(examples_path: pathlib.Path) -> list[str]:
 
 def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
     extensions = ["py", "js", "ts"]
+    excluded_dirs = ["node_modules"]
 
     # pattern_start = re.compile('(#|//) Pact annotated code block - (.*)\n(.*)End')
     pattern_start = re.compile("(#|//) Pact annotated code block - (.*)")
@@ -186,6 +187,9 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
                 if os.path.exists(example_language_spec_path):
                     source_files = []
                     for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
+                        # Don't look for e.g. .ts files under the excluded dir node_modules
+                        if any([f"/{excluded}/" in root for excluded in excluded_dirs]):
+                            continue
                         source_files.extend(
                             [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
                         )
