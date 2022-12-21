@@ -1,6 +1,7 @@
 PYTHON_MAJOR_VERSION := 3.9
 PROJECT := pact-examples
 
+TERM ?= xterm-color
 sgr0 := $(shell tput sgr0)
 red := $(shell tput setaf 1)
 green := $(shell tput setaf 2)
