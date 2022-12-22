@@ -192,5 +192,12 @@ From the logs (TODO: logging levels)
 
 ```
 Pacts were not identical!
-{'values_changed': {"root['metadata']['pactSpecification']['version']": {'new_value': '2.0.0', 'old_value': '3.0.0'}}} 
+{'values_changed': {"root['metadata']['pactSpecification']['version']": {'new_value': '2.0.0', 'old_value': '3.0.0'}}}
 ```
+
+Pre-requisites:
+
+Currently needing to use Node v14. More recent versions have problems with the
+npx docusaurus.
+
+For examnple using nvm: nvm use lts/fermium
