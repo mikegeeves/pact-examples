@@ -32,6 +32,7 @@ jobs:
           rm -R pact-examples
           npx create-docusaurus@latest pact-examples classic
           rm -R pact-examples/blog pact-examples/docs/tutorial* pact-examples/docs/intro.md
+          rm pact-examples/static/img/undraw_docusaurus_tree.svg pact-examples/static/img/undraw_docusaurus_react.svg pact-examples/static/img/undraw_docusaurus_mountain.svg
           echo "- ${BLUE}Copy the output from running the examples${SGR0}"
           cp -R output pact-examples/docs
           cp -R README.md pact-examples/docs/pact-examples.md
