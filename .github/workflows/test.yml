@@ -25,6 +25,8 @@ jobs:
           echo "SGR0=$(tput sgr0)" >> $GITHUB_ENV
 
       - name: Create docusaurus static files
+        env:
+          TERM: xterm-color
         run: |
           echo "- ${BLUE}Create a clean docusaurus install${SGR0}"
           rm -R pact-examples
