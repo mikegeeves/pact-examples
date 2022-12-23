@@ -204,7 +204,7 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
                 if os.path.exists(example_language_spec_path):
                     source_files = []
                     for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
-                        # TODO: exclude based on some list rather than single hardcoded
+                        # Don't look for e.g. .ts files under the excluded dir node_modules
                         if not any([f"/{exclude}" in root for exclude in excluded_dirs]):
                             source_files.extend(
                                 [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]

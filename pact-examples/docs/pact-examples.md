@@ -207,5 +207,3 @@ Pacts were not identical!
 ### TODO:
 
 - Coloured output from Actions directly or via Makefile doesn't work in GitHub currently
-- find out where everywhere else outputs pacts to, e.g. python does pacts and (?) for logs, js does pact/pacts and pacts/logs
-- how to actually do the build and versions, dependabot? -> How to handle e.g. different JVM branch versions, we kind of want the Pact version to be more fixed and not auto upgrade
