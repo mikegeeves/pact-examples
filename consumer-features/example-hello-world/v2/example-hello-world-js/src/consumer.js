@@ -1,24 +1,17 @@
-// import axios from "axios";
-
 const axios = require("axios");
+const { Bear } = require("./bear");
 
-const defaultBaseUrl = "http://your-api.example.com";
+class BearApiClient {
+  constructor(url) {
+    this.url = url;
+  }
 
-const api = (baseUrl = defaultBaseUrl) => ({
-  getSpecies: (name) =>
-    axios.get(`${baseUrl}/species/` + name).then((response) => {
-      return Bear(response.data.name, response.data.colour);
-    }),
-});
-
-const Bear = (name, colour) => {
-  return {
-    name,
-    colour,
-  };
-};
-
+  async getSpecies(name) {
+    return axios
+      .get(`${this.url}/species/${name}`)
+      .then((r) => new Bear(r.data.name, r.data.colour));
+  }
+}
 module.exports = {
-  api,
-  Bear,
+  BearApiClient,
 };
