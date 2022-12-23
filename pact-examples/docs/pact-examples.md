@@ -132,6 +132,8 @@ When running the examples, a .mdx file containing Tabs is generated under output
 
 To build, run examples, and spin up Docusaurus locally to serve the results: `make serve-docusaurus`
 
+For a GitHub build, a pact-examples dir will be created which will contain the docusaurus site to deploy.
+
 ### Killercoda
 
 ```
@@ -195,13 +197,13 @@ Pacts were not identical!
 {'values_changed': {"root['metadata']['pactSpecification']['version']": {'new_value': '2.0.0', 'old_value': '3.0.0'}}}
 ```
 
-Pre-requisites:
+### Pre-requisites:
 
-Currently needing to use Node v14. More recent versions have problems with the
-npx docusaurus.
+- Currently needing to use Node v14. More recent versions have problems with the
+  npx docusaurus.
 
-For examnple using nvm: nvm use lts/fermium
+  For example using nvm: `nvm use lts/fermium`
 
-TODO:
+### TODO:
 
 - Coloured output from Actions directly or via Makefile doesn't work in GitHub currently
