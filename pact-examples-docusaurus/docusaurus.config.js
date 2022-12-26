@@ -59,8 +59,8 @@ const config = {
       navbar: {
         title: "Pact Examples",
         logo: {
-          alt: "My Site Logo",
-          src: "img/logo.svg",
+          alt: "Pact Logo",
+          src: "img/favicon.ico",
         },
         items: [
           {

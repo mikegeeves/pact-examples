@@ -21,3 +21,4 @@ echo "- ${BLUE}Replace some of the default docusaurus config with our own${SGR0}
 cp docusaurus/docusaurus.config.js pact-examples-docusaurus/docusaurus.config.js
 cp docusaurus/HomepageFeatures/index.js pact-examples-docusaurus/src/components/HomepageFeatures/index.js
 cp docusaurus/pages/index.js pact-examples-docusaurus/src/pages/index.js
+cp docusaurus/favicon.ico pact-examples-docusaurus/static/img/favicon.ico
