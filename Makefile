@@ -65,12 +65,13 @@ venv: ## Create a pyenv .venv to run in
 build: ## Build the various Docker images
 	scripts/build.sh
 
-consumer-feature-examples: deps build ## Run the various Pact Consumer feature examples
-	scripts/run_consumer_feature_examples.sh
+consumer-feature-examples: deps build ## Run the suite containing the various Pact Consumer feature examples
+	scripts/run_examples.sh consumer-features
 
-examples: build consumer-feature-examples ## Run all the examples
+examples: build ## Run all the examples
+	scripts/run_examples.sh
 
-serve-docusaurus: examples ## Build the examples then spin up a docker docusaurus, with the output dir available
+serve: examples ## Build the examples then spin up a docker docusaurus, with the output dir available
 	@echo "\n${green}Docs will be available under:${sgr0}"
 	@echo " - http://localhost:3000/docs/pact-examples"
 	@echo " - http://localhost:3000/docs/output/build"
