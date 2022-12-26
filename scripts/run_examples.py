@@ -268,8 +268,8 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
         if os.path.exists(input_path):
             with open(input_path, "r") as input_readme:
                 with open(output_path, "w") as output_readme:
-                    output_readme.write("import Tabs from '@theme/Tabs';\n")
-                    output_readme.write("import TabItem from '@theme/TabItem';\n\n")
+                    output_readme.write('import Tabs from "@theme/Tabs";\n')
+                    output_readme.write('import TabItem from "@theme/TabItem";\n\n')
 
                     for line in input_readme:
                         block = pattern.match(line)

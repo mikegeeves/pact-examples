@@ -18,7 +18,7 @@ This suite contains basic tests to demonstrate consumer features
 
 ## term
 
-This suite contains basic tests to demonstrate the example Term matchers provided in each language, illustrating any
+This suite contains basic tests to demonstrate the example Term matchers provided in each language - such as IP address, timestamp - illustrating any
 differences.
 
 | Example                  | Description                | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v3   | python<br/>v2   | <br/>v3   |
