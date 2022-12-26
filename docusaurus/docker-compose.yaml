@@ -1,9 +1,8 @@
 version: "3.9"
 services:
   pact-examples-docusaurus:
-    build: .
+    build: ..
     volumes:
-      - ../output:/pact-examples/docs/output
-      - ../README.md:/pact-examples/docs/pact-examples.md
+      - ../pact-examples-docusaurus:/pact-examples
     ports:
       - "3000:3000"

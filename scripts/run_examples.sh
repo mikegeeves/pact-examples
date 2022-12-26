@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 source .env.colours.sh
 echo

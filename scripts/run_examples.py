@@ -114,7 +114,7 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
     return result
 
 
-def _extract_first_paragraph(source, example=""):
+def _extract_first_paragraph(source, example="", suite=""):
     """Parse with Beautiful Soup, to extract the FIRST PARAGRAPH from the Markdown
 
     :param source: Full path to the Markdown file to read and process
@@ -132,7 +132,7 @@ def _extract_first_paragraph(source, example=""):
             soup = BeautifulSoup(html, "html.parser")
             description = [x.text for x in list(soup.children) if x.name == "p"][0]
 
-        example_link = f"**[{example}](examples/{example})**"
+        example_link = f"**[{example}](examples/{suite}/{example})**"
     else:
         description = f"No example README.md found"
         # The README doesn't exist, so don't try to link to it
@@ -142,6 +142,7 @@ def _extract_first_paragraph(source, example=""):
 
 
 def _run_examples(
+    suite: str,
     examples_path: pathlib.Path,
     languages_and_specs: LanguagesAndSpecs,
     examples: ExamplesAndSpecs,
@@ -156,7 +157,7 @@ def _run_examples(
     matrix = [header]
     for example in examples:
         description_readme = examples_path.joinpath(example).joinpath("README.md")
-        description, example_link = _extract_first_paragraph(description_readme, example)
+        description, example_link = _extract_first_paragraph(source=description_readme, suite=suite, example=example)
 
         example_results = [example_link, description]
         for language in languages_and_specs.languages:
@@ -249,10 +250,10 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
     return code_blocks
 
 
-def _generate_example_docs(root_path, examples_path, examples, languages_and_specs):
+def _generate_example_docs(root_path, examples_path, examples, languages_and_specs, suite):
     print()
     print(f"{bcolors.HEADER}{bcolors.BOLD}Generating example docs{bcolors.ENDC}")
-    os.makedirs(root_path.joinpath("output").joinpath("examples"), exist_ok=True)
+    os.makedirs(root_path.joinpath("output").joinpath("examples").joinpath(suite), exist_ok=True)
 
     code_blocks = _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs)
     print(code_blocks)
@@ -262,7 +263,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
     for example in examples:
         print(f"{bcolors.HEADER}Example: {example}{bcolors.ENDC}")
         input_path = examples_path.joinpath(example).joinpath("README.md")
-        output_path = root_path.joinpath("output").joinpath("examples").joinpath(f"{example}.mdx")
+        output_path = root_path.joinpath("output").joinpath("examples").joinpath(suite).joinpath(f"{example}.mdx")
         print(f"reading from: {input_path}, writing to: {output_path=}")
 
         if os.path.exists(input_path):
@@ -324,7 +325,9 @@ def run_suite(root_path, suites_path, suite):
     print(f"Found: {examples=}")
     tmpdir = tempfile.TemporaryDirectory()
     print("Attempt to build all available, and create a table of all permutations")
-    languages_and_examples_and_specs_table = _run_examples(examples_path, languages_and_specs, examples, tmpdir=tmpdir)
+    languages_and_examples_and_specs_table = _run_examples(
+        suite, examples_path, languages_and_specs, examples, tmpdir=tmpdir
+    )
 
     # print('Attempt to build all available, and create a table of all permutations')
     # languages_and_specs_table = _build_images(languages_path, languages_and_specs)
@@ -354,7 +357,7 @@ def run_suite(root_path, suites_path, suite):
         f.write(results)
         f.write("\n")
 
-    _generate_example_docs(root_path, examples_path, examples, languages_and_specs)
+    _generate_example_docs(root_path, examples_path, examples, languages_and_specs, suite)
 
 
 def prepare_output():

@@ -78,7 +78,6 @@ examples: build examples-real pca ## Run all the examples, lint at the end
 serve: examples ## Build the examples then spin up a docker docusaurus, with the output dir available
 	@echo "\n${green}Docs will be available under:${sgr0}"
 	@echo " - http://localhost:3000/docs/pact-examples"
-	@echo " - http://localhost:3000/docs/output/build"
-	@echo " - http://localhost:3000/docs/output/consumer-feature-examples"
 	@echo
+	./docusaurus/setup_docusaurus.sh
 	cd docusaurus && docker-compose up

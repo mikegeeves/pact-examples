@@ -17,7 +17,7 @@ jobs:
       - name: Run examples
         env:
           TERM: xterm-color
-        run: make consumer-feature-examples
+        run: make examples
 
       - name: Set env for colouring
         run: |
@@ -29,22 +29,14 @@ jobs:
           TERM: xterm-color
         run: |
           echo "- ${BLUE}Create a clean docusaurus install${SGR0}"
-          rm -R pact-examples
-          npx create-docusaurus@latest pact-examples classic
-          rm -R pact-examples/blog pact-examples/docs/tutorial* pact-examples/docs/intro.md
-          rm pact-examples/static/img/undraw_docusaurus_tree.svg pact-examples/static/img/undraw_docusaurus_react.svg pact-examples/static/img/undraw_docusaurus_mountain.svg
-          echo "- ${BLUE}Copy the output from running the examples${SGR0}"
-          cp -R output pact-examples/docs
-          cp -R README.md pact-examples/docs/pact-examples.md
-          echo "- ${BLUE}Replace some of the default docusaurus config with our own${SGR0}"
-          cp docusaurus/docusaurus.config.js pact-examples/docusaurus.config.js
-          cp docusaurus/HomepageFeatures/index.js pact-examples/src/components/HomepageFeatures/index.js
-          cp docusaurus/pages/index.js pact-examples/src/pages/index.js
-          cd pact-examples
+          rm -Rf pact-examples-docusaurus
+          npx create-docusaurus@latest pact-examples-docusaurus classic
+          ./setup_docusaurus.sh
+          cd pact-examples-docusaurus
           echo "- ${BLUE}Build the docusaurus files. TODO: what for? What do we need for deploy and when?${SGR0}"
           npx docusaurus build
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          add: "pact-examples"
+          add: "pact-examples-docusaurus"
