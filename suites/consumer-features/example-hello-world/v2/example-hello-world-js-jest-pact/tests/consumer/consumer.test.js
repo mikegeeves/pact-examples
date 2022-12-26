@@ -1,6 +1,6 @@
 // Pact annotated code block - Setting up the Consumer
-const { pactWith } = require("jest-pact")
-const { BearApiClient } = require("../../src/consumer")
+const { pactWith } = require("jest-pact");
+const { BearApiClient } = require("../../src/consumer");
 
 pactWith(
   {
@@ -9,11 +9,11 @@ pactWith(
     dir: "./output/pacts",
   },
   (provider) => {
-    let client
+    let client;
 
     beforeEach(() => {
-      client = new BearApiClient(provider.mockService.baseUrl)
-    })
+      client = new BearApiClient(provider.mockService.baseUrl);
+    });
     // End Pact annotated code block
 
     //  Pact annotated code block - Defining the pact, and calling the consumer
@@ -21,7 +21,7 @@ pactWith(
       const expectedResponse = {
         name: "Polar",
         colour: "White",
-      }
+      };
       beforeEach(() =>
         provider.addInteraction({
           state: "Some bears exist",
@@ -35,14 +35,14 @@ pactWith(
             path: "/species/Polar",
           },
         })
-      )
+      );
 
       it("returns a bear", () => {
         return client.getSpecies("Polar").then((resp) => {
-          expect(resp).toEqual(expectedResponse)
-        })
-      })
-    })
+          expect(resp).toEqual(expectedResponse);
+        });
+      });
+    });
     //  End Pact annotated code block
   }
-)
+);

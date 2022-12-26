@@ -1,5 +1,5 @@
-import Tabs from "@theme/Tabs"
-import TabItem from "@theme/TabItem"
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 # example-hello-world
 
@@ -57,7 +57,7 @@ Each Pact is declared in a "given, when, then" style.
 const expectedResponse = {
   name: "Polar",
   colour: "White",
-}
+};
 
 await mockProvider.addInteraction({
   state: "Some bears exist",
@@ -70,14 +70,14 @@ await mockProvider.addInteraction({
     method: "GET",
     path: "/species/Polar",
   },
-})
+});
 
 // (5) Act
-const api = new BearApiClient(mockProvider.mockService.baseUrl)
-const bear = await api.getSpecies("Polar")
+const api = new BearApiClient(mockProvider.mockService.baseUrl);
+const bear = await api.getSpecies("Polar");
 
 // (6) Assert that we got the expected response
-expect(bear).to.deep.equal(new Bear("Polar", "White"))
+expect(bear).to.deep.equal(new Bear("Polar", "White"));
 ```
 
 </TabItem>

@@ -26,7 +26,7 @@ pci: ## Install pre-commit git hook scripts
 
 pca: ## Run pre-commit hooks against all the files
 	@echo "\n$(green)Run pre-commit hooks against all the files$(sgr0)"
-	pre-commit run --all-files
+	pre-commit run --all-files || echo "Some pre-commit changes were made"
 
 setup: pci pca deps ## Install packages and git hook scripts, and run them
 	@echo "\n$(green)Install packages and git hook scripts, and run them$(sgr0)"
@@ -68,8 +68,10 @@ build: ## Build the various Docker images
 consumer-feature-examples: deps build ## Run the suite containing the various Pact Consumer feature examples
 	scripts/run_examples.sh consumer-features
 
-examples: build ## Run all the examples
+examples-real:
 	scripts/run_examples.sh
+
+examples: build examples-real pca ## Run all the examples, lint at the end
 
 serve: examples ## Build the examples then spin up a docker docusaurus, with the output dir available
 	@echo "\n${green}Docs will be available under:${sgr0}"

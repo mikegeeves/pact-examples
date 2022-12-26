@@ -19,13 +19,13 @@ const mockProvider = new Pact({
   provider: "BearService",
   cors: true,
   dir: "./output/pacts",
-})
+});
 
 describe("Bear API test", () => {
   // (3) Setup Pact lifecycle hooks
-  before(() => mockProvider.setup())
-  afterEach(() => mockProvider.verify())
-  after(() => mockProvider.finalize())
+  before(() => mockProvider.setup());
+  afterEach(() => mockProvider.verify());
+  after(() => mockProvider.finalize());
 ```
 
 </TabItem>
