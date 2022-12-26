@@ -1,32 +1,33 @@
-import React from 'react';
-import clsx from 'clsx';
-import styles from './styles.module.css';
+import React from "react"
+import clsx from "clsx"
+import styles from "./styles.module.css"
 
 const FeatureList = [
   {
-    title: 'Understand feature parity',
+    title: "Understand feature parity",
     // Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Enable users to be able to easily see what features and functionality
-        is available across the supported languages.
-        Enable maintainers to be able to see gaps to fill.
+        Enable users to be able to easily see what features and functionality is
+        available across the supported languages. Enable maintainers to be able
+        to see gaps to fill.
       </>
     ),
   },
   {
-    title: 'Unlock Community Contributions',
+    title: "Unlock Community Contributions",
     // Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
         Provide reference examples of new features and functionality with tests
         to work against, so that more people will be able to contribute without
-        the huge overhead of trying to understand what to do, and where to  begin!
+        the huge overhead of trying to understand what to do, and where to
+        begin!
       </>
     ),
   },
   {
-    title: 'Improve cross-language support',
+    title: "Improve cross-language support",
     // Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
@@ -37,11 +38,11 @@ const FeatureList = [
       </>
     ),
   },
-];
+]
 
-function Feature({Svg, title, description}) {
+function Feature({ Svg, title, description }) {
   return (
-    <div className={clsx('col col--4')}>
+    <div className={clsx("col col--4")}>
       {/*<div className="text--center">*/}
       {/*  <Svg className={styles.featureSvg} role="img" />*/}
       {/*</div>*/}
@@ -50,7 +51,7 @@ function Feature({Svg, title, description}) {
         <p>{description}</p>
       </div>
     </div>
-  );
+  )
 }
 
 export default function HomepageFeatures() {
@@ -64,5 +65,5 @@ export default function HomepageFeatures() {
         </div>
       </div>
     </section>
-  );
+  )
 }

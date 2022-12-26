@@ -1,7 +1,7 @@
-const { PactV3 } = require("@pact-foundation/pact");
-const { BearApiClient } = require("../../src/consumer");
-const { Bear } = require("../../src/bear");
-const { expect } = require("chai");
+const { PactV3 } = require("@pact-foundation/pact")
+const { BearApiClient } = require("../../src/consumer")
+const { Bear } = require("../../src/bear")
+const { expect } = require("chai")
 
 // Pact annotated code block - Setting up the Consumer
 // (2) Configure our Pact library
@@ -10,7 +10,7 @@ const mockProvider = new PactV3({
   provider: "BearService",
   cors: true,
   dir: "./output/pacts",
-});
+})
 // End Pact annotated code block
 
 describe("Bear API test", () => {
@@ -20,7 +20,7 @@ describe("Bear API test", () => {
     const expectedResponse = {
       name: "Polar",
       colour: "White",
-    };
+    }
 
     mockProvider
       .given("Some bears exist")
@@ -32,17 +32,17 @@ describe("Bear API test", () => {
       .willRespondWith({
         status: 200,
         body: expectedResponse,
-      });
+      })
 
     return await mockProvider.executeTest(async (mockserver) => {
       // (5) Act
-      const api = new BearApiClient(mockserver.url);
-      const bear = await api.getSpecies("Polar");
+      const api = new BearApiClient(mockserver.url)
+      const bear = await api.getSpecies("Polar")
 
       // (6) Assert that we got the expected response
-      expect(bear).to.deep.equal(new Bear("Polar", "White"));
-    });
+      expect(bear).to.deep.equal(new Bear("Polar", "White"))
+    })
 
     //  End Pact annotated code block
-  });
-});
+  })
+})

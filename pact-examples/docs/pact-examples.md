@@ -52,7 +52,7 @@ In this case, three Docker images will be built and tagged:
 - pact-examples-js-v2
 ```
 
-An additional Dockerfile which *would* generate `pact-examples-broken-v3` is present, but does not build successfully.
+An additional Dockerfile which _would_ generate `pact-examples-broken-v3` is present, but does not build successfully.
 
 ### Examples
 
@@ -164,7 +164,7 @@ they can be successfully built or not.
 For example, in this case:
 
 | Language   | v2     | v3       |
-|------------|--------|----------|
+| ---------- | ------ | -------- |
 | **broken** | -      | ❌ Error |
 | **js**     | ✅ Yes | -        |
 | **python** | ✅ Yes | ✅ Yes   |
@@ -183,9 +183,9 @@ provided and expected output.
 
 For example, in this case:
 
-| Example                          | Description                                                                                                            | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v3   | python<br/>v2   | <br/>v3   |
-|----------------------------------|------------------------------------------------------------------------------------------------------------------------|-----------------|-----------|-------------|-----------|-----------------|-----------|
-| **example-consumer-sns**         | This example is a simple example to demonstrate the concept of feature examples, rather than anything specific to SNS! | -               | -         | -           | -         | ❌ Error        | ✅ Yes    |
+| Example                  | Description                                                                                                            | broken<br/>v2 | <br/>v3 | js<br/>v2 | <br/>v3 | python<br/>v2 | <br/>v3 |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------- | ------------- | ------- | --------- | ------- | ------------- | ------- |
+| **example-consumer-sns** | This example is a simple example to demonstrate the concept of feature examples, rather than anything specific to SNS! | -             | -       | -         | -       | ❌ Error      | ✅ Yes  |
 
 Here the v2 and v3 pact files expected are identical apart from the version contained in them, where v2 requires v2. As
 a result the python v2 fails.

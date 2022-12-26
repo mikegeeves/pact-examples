@@ -6,8 +6,8 @@ For each language and spec version identified, is there a corresponding Dockerfi
 - `-`: No Dockerfile found
 - `Error`: Dockerfile found, but fails to build successfully
 
-| Language   | v2    | v3      |
-|------------|-------|---------|
-| **broken** | -     | ❌ Error |
+| Language   | v2     | v3       |
+| ---------- | ------ | -------- |
+| **broken** | -      | ❌ Error |
 | **js**     | ✅ Yes | ✅ Yes   |
 | **python** | ✅ Yes | ✅ Yes   |

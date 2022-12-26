@@ -8,9 +8,7 @@
   "messages": [
     {
       "description": "a product event update",
-      "providerStates": [
-
-      ],
+      "providerStates": [],
       "contents": {
         "id": "some-uuid-1234-5678",
         "type": "Product Range",
