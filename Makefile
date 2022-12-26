@@ -5,6 +5,7 @@ TERM ?= xterm-color
 sgr0 := $(shell tput sgr0)
 red := $(shell tput setaf 1)
 green := $(shell tput setaf 2)
+blue := $(shell tput setaf 4)
 
 .PHONY: help
 help: ## Show this help message
