@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+# Generally, this will be run via a "make build" which in turn calls wrapper script build.sh
+
 import os
 import pathlib
 import subprocess

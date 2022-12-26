@@ -1,4 +1,5 @@
 #!/bin/sh
 
-pip -q install tabulate
+# Generally, this will be run via a "make build"
+
 scripts/build.py
