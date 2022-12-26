@@ -26,7 +26,7 @@ pci: ## Install pre-commit git hook scripts
 
 pca: ## Run pre-commit hooks against all the files
 	@echo "\n$(green)Run pre-commit hooks against all the files$(sgr0)"
-	pre-commit run --all-files || echo "Some pre-commit changes were made"
+	pre-commit run --all-files && echo "${green}No changes were made by pre-commit linters!$(sgr0)" || echo "${green}Some changes were made by pre-commit linters!$(sgr0)"
 
 setup: pci pca deps ## Install packages and git hook scripts, and run them
 	@echo "\n$(green)Install packages and git hook scripts, and run them$(sgr0)"
@@ -69,7 +69,9 @@ consumer-feature-examples: deps build ## Run the suite containing the various Pa
 	scripts/run_examples.sh consumer-features
 
 examples-real:
+	@echo "\n${green}Run all the examples${sgr0}"
 	scripts/run_examples.sh
+	@echo "\n${green}Examples finished, linting may now be needed!${sgr0}"
 
 examples: build examples-real pca ## Run all the examples, lint at the end
 
