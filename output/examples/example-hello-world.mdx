@@ -1,5 +1,5 @@
-import Tabs from "@theme/Tabs"
-import TabItem from "@theme/TabItem"
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 # example-hello-world
 
@@ -13,20 +13,19 @@ To create a Pact, we first need to define a relationship between Consumer and Pr
 <TabItem value="js-v2" label="js-v2">
 
 ```js
-
 // (2) Configure our Pact library
 const mockProvider = new Pact({
   consumer: "BearServiceClient",
   provider: "BearService",
   cors: true,
   dir: "./output/pacts",
-});
+})
 
 describe("Bear API test", () => {
   // (3) Setup Pact lifecycle hooks
-  before(() => mockProvider.setup());
-  afterEach(() => mockProvider.verify());
-  after(() => mockProvider.finalize());
+  before(() => mockProvider.setup())
+  afterEach(() => mockProvider.verify())
+  after(() => mockProvider.finalize())
 ```
 
 </TabItem>
@@ -40,6 +39,19 @@ describe("Bear API test", () => {
         pact_dir=PACT_DIR,
         log_dir=LOG_DIR,
     )
+```
+
+</TabItem>
+<TabItem value="js-v3" label="js-v3">
+
+```js
+// (2) Configure our Pact library
+const mockProvider = new PactV3({
+  consumer: "BearServiceClient",
+  provider: "BearService",
+  cors: true,
+  dir: "./output/pacts",
+});
 ```
 
 </TabItem>
@@ -57,7 +69,7 @@ Each Pact is declared in a "given, when, then" style.
 const expectedResponse = {
   name: "Polar",
   colour: "White",
-}
+};
 
 await mockProvider.addInteraction({
   state: "Some bears exist",
@@ -70,14 +82,14 @@ await mockProvider.addInteraction({
     method: "GET",
     path: "/species/Polar",
   },
-})
+});
 
 // (5) Act
-const api = new BearApiClient(mockProvider.mockService.baseUrl)
-const bear = await api.getSpecies("Polar")
+const api = new BearApiClient(mockProvider.mockService.baseUrl);
+const bear = await api.getSpecies("Polar");
 
 // (6) Assert that we got the expected response
-expect(bear).to.deep.equal(new Bear("Polar", "White"))
+expect(bear).to.deep.equal(new Bear("Polar", "White"));
 ```
 
 </TabItem>
@@ -101,6 +113,38 @@ expect(bear).to.deep.equal(new Bear("Polar", "White"))
 
         # Make sure that all interactions defined occurred
         pact.verify()
+```
+
+</TabItem>
+<TabItem value="js-v3" label="js-v3">
+
+```js
+// (4) Arrange
+const expectedResponse = {
+  name: "Polar",
+  colour: "White",
+};
+
+mockProvider
+  .given("Some bears exist")
+  .uponReceiving("a request for the Polar bear species")
+  .withRequest({
+    method: "GET",
+    path: "/species/Polar",
+  })
+  .willRespondWith({
+    status: 200,
+    body: expectedResponse,
+  });
+
+return await mockProvider.executeTest(async (mockserver) => {
+  // (5) Act
+  const api = new BearApiClient(mockserver.url);
+  const bear = await api.getSpecies("Polar");
+
+  // (6) Assert that we got the expected response
+  expect(bear).to.deep.equal(new Bear("Polar", "White"));
+});
 ```
 
 </TabItem>

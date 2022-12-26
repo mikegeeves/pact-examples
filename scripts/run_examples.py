@@ -8,7 +8,7 @@ import re
 import tempfile
 import textwrap
 from tempfile import TemporaryDirectory
-
+import sys
 import docker
 import markdown
 from bs4 import BeautifulSoup
@@ -114,6 +114,33 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
     return result
 
 
+def _extract_first_paragraph(source, example=""):
+    """Parse with Beautiful Soup, to extract the FIRST PARAGRAPH from the Markdown
+
+    :param source: Full path to the Markdown file to read and process
+    :param example: TODO: How is this used?
+    :return: Text from the first paragraph in the Markdown file
+    """
+
+    # TODO: Using Markdown and BeautifulSoup seems a bit overkill to pull out something? Something robust is needed though
+    if source.is_file():
+        with open(source) as f:
+            data = f.read()
+            md = markdown.Markdown()
+            html = md.convert(data)
+
+            soup = BeautifulSoup(html, "html.parser")
+            description = [x.text for x in list(soup.children) if x.name == "p"][0]
+
+        example_link = f"**[{example}](examples/{example})**"
+    else:
+        description = f"No example README.md found"
+        # The README doesn't exist, so don't try to link to it
+        example_link = f"**{example}**"
+
+    return description, example_link
+
+
 def _run_examples(
     examples_path: pathlib.Path,
     languages_and_specs: LanguagesAndSpecs,
@@ -129,23 +156,8 @@ def _run_examples(
     matrix = [header]
     for example in examples:
         description_readme = examples_path.joinpath(example).joinpath("README.md")
+        description, example_link = _extract_first_paragraph(description_readme, example)
 
-        # TODO: Using Markdown and BeautifulSoup seems a bit overkill to pull out something? Something robust is needed though
-        if description_readme.is_file():
-            with open(description_readme) as f:
-                data = f.read()
-                md = markdown.Markdown()
-                html = md.convert(data)
-
-                # Parse with Beautiful Soup
-                # This will extract the FIRST PARAGRAPH from the Markdown
-                soup = BeautifulSoup(html, "html.parser")
-                description = [x.text for x in list(soup.children) if x.name == "p"][0]
-            example_link = f"**[{example}](examples/{example})**"
-        else:
-            description = f"No example README.md found"
-            # The README doesn't exist, so don't try to link to it
-            example_link = f"**{example}**"
         example_results = [example_link, description]
         for language in languages_and_specs.languages:
             for spec in languages_and_specs.specs:
@@ -166,6 +178,11 @@ def _run_examples(
                 else:
                     example_results.append(f"-")
         matrix.append(example_results)
+
+    # To have something to populate in the table beyond headers when nothing is found
+    if len(matrix) == 1:
+        matrix.append(["No examples found!"])
+
     return matrix
 
 
@@ -295,10 +312,9 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
         #     f.write('\n')
 
 
-if __name__ == "__main__":
-    print(f"{bcolors.HEADER}{bcolors.BOLD}Identifying and running available examples{bcolors.ENDC}")
-    root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "scripts" else pathlib.Path.cwd()
-    examples_path = root_path.joinpath("consumer-features")
+def run_suite(root_path, suites_path, suite):
+    examples_path = suites_path.joinpath(suite)
+
     languages_path = root_path.joinpath("languages")
 
     languages_and_specs = _get_languages_and_specs(languages_path)
@@ -313,11 +329,41 @@ if __name__ == "__main__":
     # print('Attempt to build all available, and create a table of all permutations')
     # languages_and_specs_table = _build_images(languages_path, languages_and_specs)
     #
+
+    results = tabulate(languages_and_examples_and_specs_table, headers="firstrow", tablefmt="github")
+
+    print()
+    print(" STORE BELOW IN .MD")
+    print("=====================")
+    print(results)
+    print()
+    print("=====================")
+    print(" END")
+
+    output_path = root_path.joinpath("output").joinpath("examples.md")
+    print(f"writing to: {output_path=}")
+    with open(output_path, "a") as f:
+        suite_readme = suites_path.joinpath(suite).joinpath("README.md")
+        suite_readme_description, _ = _extract_first_paragraph(suite_readme)
+
+        f.write(f"## {suite}")
+        f.write("\n")
+        f.write(suite_readme_description)
+        f.write("\n")
+        f.write("\n")
+        f.write(results)
+        f.write("\n")
+
+    _generate_example_docs(root_path, examples_path, examples, languages_and_specs)
+
+
+def prepare_output():
+    """Create the output examples.md file, populating with some header info, so it is ready for the contents of each suite being run."""
     details = textwrap.dedent(
         """\
         # Language and spec support for each example
 
-        For each language and spec version identified, is there a corresponding Makefile within an example folder to run against.
+        For each language and spec version identified, for each suite defined, is there a corresponding Makefile within an example folder to run against.
 
         - `Yes`: Example runs successfully, and generates the expected Pactfile (Consumer), or verifies successfully against the provided Pactfile (Provider)
         - `-`: No example to test found
@@ -325,22 +371,34 @@ if __name__ == "__main__":
 
     """
     )
-    results = tabulate(languages_and_examples_and_specs_table, headers="firstrow", tablefmt="github")
 
     print()
     print(" STORE BELOW IN .MD")
     print("=====================")
     print(details)
-    print(results)
     print()
     print("=====================")
     print(" END")
 
-    output_path = root_path.joinpath("output").joinpath("consumer-feature-examples.md")
+    output_path = root_path.joinpath("output").joinpath("examples.md")
     print(f"writing to: {output_path=}")
     with open(output_path, "w") as f:
         f.write(details)
-        f.write(results)
         f.write("\n")
 
-    _generate_example_docs(root_path, examples_path, examples, languages_and_specs)
+
+if __name__ == "__main__":
+    print(f"{bcolors.HEADER}{bcolors.BOLD}Identifying and running available examples{bcolors.ENDC}")
+    root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "scripts" else pathlib.Path.cwd()
+
+    prepare_output()
+
+    suites_path = root_path.joinpath("suites")
+
+    if len(sys.argv) > 1:
+        suites = [sys.argv[1]]
+    else:
+        suites = _get_examples(suites_path)
+
+    for suite in suites:
+        run_suite(root_path, suites_path, suite)
