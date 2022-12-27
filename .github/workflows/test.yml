@@ -17,7 +17,9 @@ jobs:
       - name: Run examples
         env:
           TERM: xterm-color
-        run: make examples
+        run: |
+          make deps
+          make examples
 
       - name: Set env for colouring
         run: |
