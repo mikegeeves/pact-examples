@@ -33,7 +33,7 @@ jobs:
           echo "- ${BLUE}Create a clean docusaurus install${SGR0}"
           rm -Rf pact-examples-docusaurus
           npx create-docusaurus@latest pact-examples-docusaurus classic
-          ./setup_docusaurus.sh
+          ./docusaurus/setup_docusaurus.sh
           cd pact-examples-docusaurus
           echo "- ${BLUE}Build the docusaurus files. TODO: what for? What do we need for deploy and when?${SGR0}"
           npx docusaurus build
