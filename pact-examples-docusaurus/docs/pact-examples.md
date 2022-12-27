@@ -9,12 +9,26 @@ Where there is no test for a particular "feature", it will then indicate either 
 cover it, or the functionality is not supported.
 
 The reasoning behind trying to collate into a single repo is that it makes it a much lower barrier to entry for making
-changes to a test. For example if it is found that a test is "incomplete" in demonstrating behaviour, it would be more
-feasible for a PR to make minor changes across the various languages, than a developer to make multiple PRs.
+changes to a test which illustrates a feature. For example if it is found that a test is "incomplete" in demonstrating
+behaviour, it would be more feasible for a PR to make minor changes across the various languages, than a developer to
+make multiple PRs.
 
 This would hopefully also then lower the barrier to code reviews, since if a PR covers many languages it is more
 feasible for a developer to "get the gist" of changes in other languages, if they appear to be correct, for the
 languages outside their core skillset.
+
+Currently, it is very unclear exactly how much functionality is provided by the different languages, and if the
+implementation is the same, or different (e.g. pact-python message does not appear to be the same as others).
+
+For (potential) maintainers to be able to contribute to fill in gaps, it needs to be understood what is or is not
+needed. An example of this is with the FFI implementations, "implement FFI" without understanding of what is needed
+requires much time going through implementations in other languages, trying to understand what they do and how they
+work.
+
+This provides a framework such that a new "version" can be defined, and functionality implemented in a language as a
+reference example. By providing examples of Pacts which a language must be able to be capable of generating to be
+compliant (proven by the reference example tests), there is then a checklist to work against of what does or doesn't
+work.
 
 ## Structure
 
