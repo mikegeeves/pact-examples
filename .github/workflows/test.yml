@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  ubuntu:
+    # Pinned to ubuntu-20.04 rather than ubuntu-latest for node v14
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Run examples
+        env:
+          TERM: xterm-color
+        run: |
+          make deps
+          make examples
+
+      - name: Set env for colouring
+        run: |
+          echo "BLUE=$(tput setaf 4)" >> $GITHUB_ENV
+          echo "SGR0=$(tput sgr0)" >> $GITHUB_ENV
+
+      - name: Create docusaurus static files
+        env:
+          TERM: xterm-color
+        run: |
+          echo "- ${BLUE}Create a clean docusaurus install${SGR0}"
+          rm -Rf pact-examples-docusaurus
+          npx create-docusaurus@latest pact-examples-docusaurus classic
+          ./docusaurus/setup_docusaurus.sh
+          cd pact-examples-docusaurus
+          echo "- ${BLUE}Build the docusaurus files. TODO: what for? What do we need for deploy and when?${SGR0}"
+          npx docusaurus build
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "pact-examples-docusaurus"

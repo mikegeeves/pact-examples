@@ -1,0 +1,23 @@
+# Misc
+*.swp
+
+# Python
+__pycache__
+.pytest_cache
+.env
+*.egg-info
+*.pyc
+.venv
+.python-version
+
+# IDEs
+.idea
+.vscode
+
+# Pact
+**/tests/pacts
+**/tests/log
+**/log/pact.log
+
+# Ignore the pacts which may have been outputted by an example
+examples/*/*/*/pacts/*.json
