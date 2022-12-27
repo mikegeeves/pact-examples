@@ -29,15 +29,19 @@ class ExamplesAndSpecs(NamedTuple):
 RESULT = {0: "SUCCESS", 1: "ERROR"}
 
 
-def _get_languages_and_specs(languages_path: pathlib.Path) -> LanguagesAndSpecs:
-    languages = sorted([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*") if os.path.isdir(x)])
-    specs = sorted(set([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*/*") if os.path.isdir(x)]))
+def _get_languages_and_specs(languages_path: pathlib.Path, languages=None, specs=None) -> LanguagesAndSpecs:
+    if not languages:
+        languages = sorted([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*") if os.path.isdir(x)])
+    if not specs:
+        specs = sorted(set([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*/*") if os.path.isdir(x)]))
 
     return LanguagesAndSpecs(languages=languages, specs=specs)
 
 
-def _get_examples_and_specs(languages_path: pathlib.Path) -> LanguagesAndSpecs:
-    examples = sorted([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*") if os.path.isdir(x)])
-    specs = sorted(set([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*/*") if os.path.isdir(x)]))
+def _get_examples_and_specs(languages_path: pathlib.Path, examples, specs) -> LanguagesAndSpecs:
+    if not examples:
+        examples = sorted([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*") if os.path.isdir(x)])
+    if not specs:
+        specs = sorted(set([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*/*") if os.path.isdir(x)]))
 
     return LanguagesAndSpecs(examples=examples, specs=specs)

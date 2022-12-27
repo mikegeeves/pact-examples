@@ -81,3 +81,7 @@ serve: examples ## Build the examples then spin up a docker docusaurus, with the
 	@echo
 	./docusaurus/setup_docusaurus.sh
 	cd docusaurus && docker-compose up
+
+examples-python-date: ## Example of running a specific example for debugging
+	@echo "\n${green}Run just the python example-date examples${sgr0}"
+	./scripts/run_examples.py --suite term --example example-date

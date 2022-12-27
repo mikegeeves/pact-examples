@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import click
 import glob
 import json
 import os
@@ -313,16 +314,21 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
         #     f.write('\n')
 
 
-def run_suite(root_path, suites_path, suite):
+def run_suite(root_path, suites_path, suite, languages=None, specs=None, examples=None):
+    print(f"{bcolors.HEADER}{bcolors.BOLD}Attempting to run examples for suite: {bcolors.OKBLUE}{suite}{bcolors.ENDC}")
+
     examples_path = suites_path.joinpath(suite)
 
     languages_path = root_path.joinpath("languages")
 
-    languages_and_specs = _get_languages_and_specs(languages_path)
-    print(f"{languages_and_specs=}")
+    languages_and_specs = _get_languages_and_specs(languages_path, languages=languages, specs=specs)
 
-    examples = _get_examples(examples_path)
+    print(f"{bcolors.OKBLUE}{languages_and_specs=}{bcolors.ENDC}")
+
+    if not examples:
+        examples = _get_examples(examples_path)
     print(f"Found: {examples=}")
+
     tmpdir = tempfile.TemporaryDirectory()
     print("Attempt to build all available, and create a table of all permutations")
     languages_and_examples_and_specs_table = _run_examples(
@@ -360,7 +366,7 @@ def run_suite(root_path, suites_path, suite):
     _generate_example_docs(root_path, examples_path, examples, languages_and_specs, suite)
 
 
-def prepare_output():
+def prepare_output(root_path):
     """Create the output examples.md file, populating with some header info, so it is ready for the contents of each suite being run."""
     details = textwrap.dedent(
         """\
@@ -390,18 +396,27 @@ def prepare_output():
         f.write("\n")
 
 
-if __name__ == "__main__":
+@click.command()
+@click.option("--suite", default="all", help="Which suite to run, by default all suites will be run")
+@click.option("--language", help="Which language to run, multiple may be provided", multiple=True)
+@click.option("--spec", help="Which spec to run, multiple may be provided", multiple=True)
+@click.option("--example", help="Which example, multiple may be provided", multiple=True)
+def main(suite, language, spec, example):
     print(f"{bcolors.HEADER}{bcolors.BOLD}Identifying and running available examples{bcolors.ENDC}")
     root_path = pathlib.Path.cwd().parent if pathlib.Path.cwd().name == "scripts" else pathlib.Path.cwd()
 
-    prepare_output()
+    prepare_output(root_path)
 
     suites_path = root_path.joinpath("suites")
 
-    if len(sys.argv) > 1:
-        suites = [sys.argv[1]]
+    if suite != "all":
+        suites = [suite]
     else:
         suites = _get_examples(suites_path)
 
     for suite in suites:
-        run_suite(root_path, suites_path, suite)
+        run_suite(root_path, suites_path, suite, list(language), list(spec), list(example))
+
+
+if __name__ == "__main__":
+    main()
