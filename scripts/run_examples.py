@@ -154,8 +154,31 @@ def _run_examples(
     header = ["Example", "Description"]
     for language in languages_and_specs.languages:
         header.append(f"{language}<br/>{languages_and_specs.specs[0]}")
+
+        # Look for any additional variations of a language which have an example
+        # This will look for e.g. 'js-v3-jest-pact'
+        # and add 'v3-jest-pact' along with the v2, v3 spec
+        flavours = [
+            x.replace(f"{language}-", "")
+            for x in languages_and_specs.flavours
+            if x.startswith(f"{languages_and_specs.specs[0]}-{language}-")
+        ]
+        for flavour in flavours:
+            header.append(f"<br/>{flavour}")
+
         for spec in languages_and_specs.specs[1:]:
             header.append(f"<br/>{spec}")
+
+            # Look for any additional variations of a language which have an example
+            # This will look for e.g. 'js-v3-jest-pact'
+            # and add 'v3-jest-pact' along with the v2, v3 spec
+            flavours = [
+                x.replace(f"{language}-", "")
+                for x in languages_and_specs.flavours
+                if x.startswith(f"{spec}-{language}-")
+            ]
+            for flavour in flavours:
+                header.append(f"<br/>{flavour}")
     matrix = [header]
     for example in examples:
         description_readme = examples_path.joinpath(example).joinpath("README.md")
@@ -164,22 +187,38 @@ def _run_examples(
         example_results = [example_link, description]
         for language in languages_and_specs.languages:
             for spec in languages_and_specs.specs:
-                makefile = (
-                    examples_path.joinpath(example)
-                    .joinpath(spec)
-                    .joinpath(f"{example}-{language}")
-                    .joinpath("Makefile")
-                )
-                if makefile.is_file():
-                    result = _run_example(language=language, spec=spec, example_dir=makefile.parent, tmpdir=tmpdir)
-                    if result == 0:
-                        # If the tests ran, now compare the pact for this example
-                        result = _compare_example(
-                            tmpdir=tmpdir, examples_path=examples_path, example=example, spec=spec, language=language
-                        )
-                    example_results.append("✅ Yes" if result == 0 else "❌ Error")
-                else:
-                    example_results.append(f"-")
+                # Possible flavours will be like e.g. -jest-pact
+                # Note the leading -, and the default of empty string for no flavour
+                possible_flavours = [""] + [
+                    x.replace(f"{spec}-{language}", "")
+                    for x in languages_and_specs.flavours
+                    if x.startswith(f"{spec}-{language}-")
+                ]
+                makefiles = []
+                for flavour in possible_flavours:
+                    makefile = (
+                        examples_path.joinpath(example)
+                        .joinpath(spec)
+                        .joinpath(f"{example}-{language}{flavour}")
+                        .joinpath("Makefile")
+                    )
+                    makefiles.append(makefile)
+
+                for makefile in makefiles:
+                    if makefile.is_file():
+                        result = _run_example(language=language, spec=spec, example_dir=makefile.parent, tmpdir=tmpdir)
+                        if result == 0:
+                            # If the tests ran, now compare the pact for this example
+                            result = _compare_example(
+                                tmpdir=tmpdir,
+                                examples_path=examples_path,
+                                example=example,
+                                spec=spec,
+                                language=language,
+                            )
+                        example_results.append("✅ Yes" if result == 0 else "❌ Error")
+                    else:
+                        example_results.append(f"-")
         matrix.append(example_results)
 
     # To have something to populate in the table beyond headers when nothing is found
@@ -326,7 +365,9 @@ def run_suite(root_path, suites_path, suite, languages=None, specs=None, example
 
     languages_path = root_path.joinpath("languages")
 
-    languages_and_specs = _get_languages_and_specs(languages_path, languages=languages, specs=specs)
+    languages_and_specs = _get_languages_and_specs(
+        languages_path, languages=languages, specs=specs, examples_path=examples_path
+    )
 
     print(f"{bcolors.OKBLUE}{languages_and_specs=}{bcolors.ENDC}")
 
