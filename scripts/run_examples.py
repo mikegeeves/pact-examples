@@ -106,8 +106,9 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
 
         result = 1
     finally:
-        if container:
-            print(f"logs: {container.logs()}")
+        if container and result != 0:
+            print(f"{bcolors.HEADER}Container output{bcolors.ENDC}")
+            print(container.logs().decode("unicode_escape"))
             container.remove()
 
     colour = bcolors.OKGREEN if result == 0 else bcolors.FAIL
@@ -244,7 +245,10 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
                             code_snippet = text[
                                 end_of_matching_start_line : end_of_matching_start_line + start_of_matching_end_line
                             ]
-                            print(f"{code_snippet=}")
+                            print("code snippet START")
+                            for line in code_snippet.split("\n"):
+                                print(line)
+                            print("code snippet END")
 
                             code_blocks[example][spec][language][block_name] = code_snippet
 
@@ -257,7 +261,8 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
     os.makedirs(root_path.joinpath("output").joinpath("examples").joinpath(suite), exist_ok=True)
 
     code_blocks = _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs)
-    print(code_blocks)
+    print("code_blocks:")
+    print(json.dumps(code_blocks, indent=4))
 
     pattern = re.compile("<!-- Annotated code block - (.*) -->")
 
