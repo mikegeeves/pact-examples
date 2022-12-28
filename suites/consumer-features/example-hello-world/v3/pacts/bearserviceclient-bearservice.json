@@ -1,0 +1,35 @@
+{
+  "consumer": {
+    "name": "BearServiceClient"
+  },
+  "provider": {
+    "name": "BearService"
+  },
+  "interactions": [
+    {
+      "description": "a request for the Polar bear species",
+      "providerStates": [
+        {
+          "name": "Some bears exist"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/species/Polar"
+      },
+      "response": {
+        "status": 200,
+        "headers": {},
+        "body": {
+          "name": "Polar",
+          "colour": "White"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  }
+}

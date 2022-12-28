@@ -31,7 +31,7 @@ describe("Bear API test", () => {
       })
       .willRespondWith({
         status: 200,
-        body: expectedResponse,
+        body: { ...expectedResponse },
       });
 
     return await mockProvider.executeTest(async (mockserver) => {
@@ -40,7 +40,7 @@ describe("Bear API test", () => {
       const bear = await api.getSpecies("Polar");
 
       // (6) Assert that we got the expected response
-      expect(bear).to.deep.equal(new Bear("Polar", "White"));
+      expect(bear).to.deep.equal(expectedResponse);
     });
 
     //  End Pact annotated code block
