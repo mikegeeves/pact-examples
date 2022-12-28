@@ -1,5 +1,5 @@
 {
-  "name": "v2-js",
+  "name": "pact-v2-js",
   "version": "0.1.0",
   "dependencies": {
     "axios": "^0.27.2"

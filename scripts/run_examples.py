@@ -9,7 +9,7 @@ import re
 import tempfile
 import textwrap
 from tempfile import TemporaryDirectory
-import sys
+import time
 import docker
 import markdown
 from bs4 import BeautifulSoup
@@ -60,6 +60,8 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
 
 
 def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: TemporaryDirectory):
+    start = time.time()
+
     print(
         f"{bcolors.HEADER}-> _run_example("
         f"{bcolors.OKBLUE}{language=}{bcolors.HEADER}, "
@@ -112,7 +114,10 @@ def _run_example(language: str, spec: str, example_dir: pathlib.Path, tmpdir: Te
             container.remove()
 
     colour = bcolors.OKGREEN if result == 0 else bcolors.FAIL
-    print(f"{bcolors.HEADER}<- _run_example, returning:  {colour}{result=}{bcolors.ENDC}")
+
+    end = time.time()
+    duration = end - start
+    print(f"{bcolors.HEADER}<- _run_example, {duration=}s, returning:  {colour}{result=}{bcolors.ENDC}")
     return result
 
 
