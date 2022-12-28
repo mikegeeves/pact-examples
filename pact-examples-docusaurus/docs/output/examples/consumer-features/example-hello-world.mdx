@@ -27,7 +27,6 @@ describe("Bear API test", () => {
   afterEach(() => mockProvider.verify());
   after(() => mockProvider.finalize());
 ```
-
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -40,7 +39,6 @@ describe("Bear API test", () => {
         log_dir=LOG_DIR,
     )
 ```
-
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
@@ -53,7 +51,6 @@ const mockProvider = new PactV3({
   dir: "./output/pacts",
 });
 ```
-
 </TabItem>
 </Tabs>
 
@@ -65,33 +62,32 @@ Each Pact is declared in a "given, when, then" style.
 <TabItem value="js-v2" label="js-v2">
 
 ```js
-// (4) Arrange
-const expectedResponse = {
-  name: "Polar",
-  colour: "White",
-};
+    // (4) Arrange
+    const expectedResponse = {
+      name: "Polar",
+      colour: "White",
+    };
 
-await mockProvider.addInteraction({
-  state: "Some bears exist",
-  uponReceiving: "a request for the Polar bear species",
-  willRespondWith: {
-    status: 200,
-    body: expectedResponse,
-  },
-  withRequest: {
-    method: "GET",
-    path: "/species/Polar",
-  },
-});
+    await mockProvider.addInteraction({
+      state: "Some bears exist",
+      uponReceiving: "a request for the Polar bear species",
+      willRespondWith: {
+        status: 200,
+        body: expectedResponse,
+      },
+      withRequest: {
+        method: "GET",
+        path: "/species/Polar",
+      },
+    });
 
-// (5) Act
-const api = new BearApiClient(mockProvider.mockService.baseUrl);
-const bear = await api.getSpecies("Polar");
+    // (5) Act
+    const api = new BearApiClient(mockProvider.mockService.baseUrl);
+    const bear = await api.getSpecies("Polar");
 
-// (6) Assert that we got the expected response
-expect(bear).to.deep.equal(new Bear("Polar", "White"));
+    // (6) Assert that we got the expected response
+    expect(bear).to.deep.equal(new Bear("Polar", "White"));
 ```
-
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -114,39 +110,37 @@ expect(bear).to.deep.equal(new Bear("Polar", "White"));
         # Make sure that all interactions defined occurred
         pact.verify()
 ```
-
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
 ```js
-// (4) Arrange
-const expectedResponse = {
-  name: "Polar",
-  colour: "White",
-};
+    // (4) Arrange
+    const expectedResponse = {
+      name: "Polar",
+      colour: "White",
+    };
 
-mockProvider
-  .given("Some bears exist")
-  .uponReceiving("a request for the Polar bear species")
-  .withRequest({
-    method: "GET",
-    path: "/species/Polar",
-  })
-  .willRespondWith({
-    status: 200,
-    body: { ...expectedResponse },
-  });
+    mockProvider
+      .given("Some bears exist")
+      .uponReceiving("a request for the Polar bear species")
+      .withRequest({
+        method: "GET",
+        path: "/species/Polar",
+      })
+      .willRespondWith({
+        status: 200,
+        body: { ...expectedResponse },
+      });
 
-return await mockProvider.executeTest(async (mockserver) => {
-  // (5) Act
-  const api = new BearApiClient(mockserver.url);
-  const bear = await api.getSpecies("Polar");
+    return await mockProvider.executeTest(async (mockserver) => {
+      // (5) Act
+      const api = new BearApiClient(mockserver.url);
+      const bear = await api.getSpecies("Polar");
 
-  // (6) Assert that we got the expected response
-  expect(bear).to.deep.equal(expectedResponse);
-});
+      // (6) Assert that we got the expected response
+      expect(bear).to.deep.equal(expectedResponse);
+    });
 ```
-
 </TabItem>
 </Tabs>
 
@@ -158,6 +152,5 @@ Some other code snippets would go here when we have some
 <TabItem value="None available" label="None available">
 
 TODO: No code snippets available for this example
-
 </TabItem>
 </Tabs>
