@@ -29,10 +29,7 @@ pactWith(
           })
           .willRespondWith({
             status: 200,
-            body: {
-              status: 200,
-              body: { ...expectedResponse },
-            },
+            body: { ...expectedResponse },
           })
       );
 
