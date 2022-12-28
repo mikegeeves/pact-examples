@@ -249,6 +249,7 @@ def _run_examples(
 
                 for makefile in makefiles:
                     if makefile.is_file():
+                        tmpdir = tempfile.TemporaryDirectory()
                         result = _run_example(language=language, spec=spec, example_dir=makefile.parent, tmpdir=tmpdir)
                         if result == 0:
                             # If the tests ran, now compare the pact for this example

@@ -1,6 +1,6 @@
----
-title: Markdown page example
----
+______________________________________________________________________
+
+## title: Markdown page example
 
 # Markdown page example
 
