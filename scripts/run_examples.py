@@ -191,7 +191,6 @@ def _run_examples(
     examples_path: pathlib.Path,
     languages_and_specs: LanguagesAndSpecs,
     examples: ExamplesAndSpecs,
-    tmpdir: TemporaryDirectory,
 ) -> list[list[str]]:
     # Construct the header row
     header = ["Example", "Description"]
@@ -419,11 +418,8 @@ def run_suite(root_path, suites_path, suite, languages=None, specs=None, example
         examples = _get_examples(examples_path)
     print(f"Found: {examples=}")
 
-    tmpdir = tempfile.TemporaryDirectory()
     print("Attempt to build all available, and create a table of all permutations")
-    languages_and_examples_and_specs_table = _run_examples(
-        suite, examples_path, languages_and_specs, examples, tmpdir=tmpdir
-    )
+    languages_and_examples_and_specs_table = _run_examples(suite, examples_path, languages_and_specs, examples)
 
     # print('Attempt to build all available, and create a table of all permutations')
     # languages_and_specs_table = _build_images(languages_path, languages_and_specs)
@@ -447,10 +443,12 @@ def run_suite(root_path, suites_path, suite, languages=None, specs=None, example
 
         f.write(f"## {suite}")
         f.write("\n")
+        f.write("\n")
         f.write(suite_readme_description)
         f.write("\n")
         f.write("\n")
         f.write(results)
+        f.write("\n")
         f.write("\n")
 
     _generate_example_docs(root_path, examples_path, examples, languages_and_specs, suite)
@@ -505,7 +503,14 @@ def main(suite, language, spec, example):
         suites = _get_examples(suites_path)
 
     for suite in suites:
-        run_suite(root_path, suites_path, suite, list(language), list(spec), list(example))
+        run_suite(
+            root_path=root_path,
+            suites_path=suites_path,
+            suite=suite,
+            languages=list(language),
+            specs=list(spec),
+            examples=list(example),
+        )
 
 
 if __name__ == "__main__":
