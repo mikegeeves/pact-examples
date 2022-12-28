@@ -10,6 +10,9 @@ __pycache__
 .venv
 .python-version
 
+# Javascript
+node_modules
+
 # IDEs
 .idea
 .vscode

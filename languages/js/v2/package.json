@@ -1,18 +1,18 @@
 {
-  "name": "example-hello-world-js",
+  "name": "pact-v2-js",
   "version": "0.1.0",
   "dependencies": {
-    "axios": "^0.27.2",
-    "cors": "^2.8.5",
-    "express": "^4.18.1"
+    "axios": "^0.27.2"
   },
   "scripts": {
-    "test": "mocha --exit --timeout 30000 tests/consumer/consumer.pact.spec*",
+    "test-mocha": "mocha --exit --timeout 30000 tests/*/*spec*",
+    "test-jest": "jest --test-timeout 30000",
     "pretest": "npm install"
   },
   "devDependencies": {
     "@pact-foundation/pact": "^10.1.4",
     "chai": "^4.3.6",
+    "jest-pact": "^0.10.2",
     "mocha": "^10.0.0"
   }
 }

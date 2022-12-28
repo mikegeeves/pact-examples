@@ -76,6 +76,9 @@ examples-real:
 examples: build examples-real pca ## Run all the examples, lint at the end
 
 serve: examples ## Build the examples then spin up a docker docusaurus, with the output dir available
+	@echo "\n${green}Clean output dir${sgr0}"
+	rm -Rf output/
+	mkdir output
 	@echo "\n${green}Docs will be available under:${sgr0}"
 	@echo " - http://localhost:3000/docs/pact-examples"
 	@echo
@@ -85,3 +88,19 @@ serve: examples ## Build the examples then spin up a docker docusaurus, with the
 examples-python-date: ## Example of running a specific example for debugging
 	@echo "\n${green}Run just the python example-date examples${sgr0}"
 	./scripts/run_examples.py --suite term --example example-date
+
+clean: ## Clean out logs etc which may have been created from running tests locally
+	@echo "\n${green}Cleaning out:${sgr0}"
+
+	@echo "\n${green} - Pact logs and output from running locally${sgr0}"
+	rm -Rf ./suites/*/*/*/*/logs
+	rm -Rf ./suites/*/*/*/*/output
+
+	@echo "\n${green} - Python specific${sgr0}"
+	rm -Rf ./suites/*/*/*/*/.pytest_cache
+
+	@echo "\n${green} - Javascript specific${sgr0}"
+	rm -Rf ./suites/*/*/*/*/node_modules
+	rm -Rf ./languages/js/*/node_modules
+
+	@echo "\n${green} - Finished!${sgr0}"

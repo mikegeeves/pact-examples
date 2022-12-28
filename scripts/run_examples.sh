@@ -4,9 +4,6 @@ source .env.colours.sh
 echo
 echo "${BOLD}${MAGENTA}$0 starting up"
 
-rm -R ./output
-mkdir ./output
-
 # Run all suites, or only a single suite if requested
 if [ -z "$1" ]
   then

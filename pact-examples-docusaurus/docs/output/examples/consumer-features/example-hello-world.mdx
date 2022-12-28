@@ -129,7 +129,7 @@ Each Pact is declared in a "given, when, then" style.
       })
       .willRespondWith({
         status: 200,
-        body: expectedResponse,
+        body: { ...expectedResponse },
       });
 
     return await mockProvider.executeTest(async (mockserver) => {
@@ -138,7 +138,7 @@ Each Pact is declared in a "given, when, then" style.
       const bear = await api.getSpecies("Polar");
 
       // (6) Assert that we got the expected response
-      expect(bear).to.deep.equal(new Bear("Polar", "White"));
+      expect(bear).to.deep.equal(expectedResponse);
     });
 ```
 </TabItem>

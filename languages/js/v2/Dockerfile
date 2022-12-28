@@ -8,3 +8,8 @@ RUN apt-get update -y && \
 # Log files were not written due to an error writing to the directory: /.npm/_logs
 RUN mkdir -p /.npm/_logs && chmod a+w /.npm/_logs
 RUN mkdir -p /.npm/_cacache && chmod a+w /.npm/_cacache
+
+# Install required npm dependencies
+COPY package.json package-lock.json /deps/
+WORKDIR /deps
+RUN npm install

@@ -19,6 +19,7 @@ class bcolors:
 class LanguagesAndSpecs(NamedTuple):
     languages: list[str]
     specs: list[str]
+    flavours: list[str]
 
 
 class ExamplesAndSpecs(NamedTuple):
@@ -29,13 +30,35 @@ class ExamplesAndSpecs(NamedTuple):
 RESULT = {0: "SUCCESS", 1: "ERROR"}
 
 
-def _get_languages_and_specs(languages_path: pathlib.Path, languages=None, specs=None) -> LanguagesAndSpecs:
+def _get_languages_and_specs(
+    languages_path: pathlib.Path, languages=None, specs=None, examples_path=None
+) -> LanguagesAndSpecs:
     if not languages:
         languages = sorted([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*") if os.path.isdir(x)])
     if not specs:
         specs = sorted(set([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*/*") if os.path.isdir(x)]))
 
-    return LanguagesAndSpecs(languages=languages, specs=specs)
+    # Try and find any additional flavours, i.e. variations of a language
+    # This will find e.g. consumer-features/v2/example-hello-world-js-jest-pact and identify v2-js-jest-pact
+    if examples_path:
+        flavours = set()
+        for spec in specs:
+            for language in languages:
+                additional_flavours = sorted(
+                    set(
+                        [
+                            f'{spec}-{language}-{pathlib.Path(x).name.split(f"-{language}-")[1]}'
+                            for x in glob.glob(f"{examples_path}/*/{spec}/*")
+                            if os.path.isdir(x) and f"-{language}-" in x
+                        ]
+                    )
+                )
+                for additional_flavour in additional_flavours:
+                    flavours.add(additional_flavour)
+
+    else:
+        flavours = []
+    return LanguagesAndSpecs(languages=languages, specs=specs, flavours=list(flavours))
 
 
 def _get_examples_and_specs(languages_path: pathlib.Path, examples, specs) -> LanguagesAndSpecs:

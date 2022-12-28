@@ -26,13 +26,13 @@ pactWith(
         provider.addInteraction({
           state: "Some bears exist",
           uponReceiving: "a request for the Polar bear species",
-          willRespondWith: {
-            status: 200,
-            body: expectedResponse,
-          },
           withRequest: {
             method: "GET",
             path: "/species/Polar",
+          },
+          willRespondWith: {
+            status: 200,
+            body: expectedResponse,
           },
         })
       );
