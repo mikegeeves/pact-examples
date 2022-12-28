@@ -37,6 +37,8 @@ jobs:
           cd pact-examples-docusaurus
           echo "- ${BLUE}Build the docusaurus files. TODO: what for? What do we need for deploy and when?${SGR0}"
           npx docusaurus build
+          echo "- ${BLUE}Make sure everyone else can modify these files later, not just root${SGR0}"
+          find ./pact-examples-docusaurus -exec chmod a+w {} \;
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
