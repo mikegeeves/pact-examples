@@ -1,0 +1,17 @@
+{
+  "name": "v2-js",
+  "version": "0.1.0",
+  "dependencies": {
+    "axios": "^0.27.2"
+  },
+  "scripts": {
+    "test-mocha": "mocha --exit --timeout 30000 tests/*/*spec*",
+    "test-jest": "jest --test-timeout 30000",
+    "pretest": "npm install"
+  },
+  "devDependencies": {
+    "@pact-foundation/pact": "^10.1.4",
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0"
+  }
+}

@@ -99,4 +99,8 @@ clean: ## Clean out logs etc which may have been created from running tests loca
 	@echo "\n${green} - Python specific${sgr0}"
 	rm -Rf ./suites/*/*/*/*/.pytest_cache
 
+	@echo "\n${green} - Javascript specific${sgr0}"
+	rm -Rf ./suites/*/*/*/*/node_modules
+	rm -Rf ./languages/js/*/node_modules
+
 	@echo "\n${green} - Finished!${sgr0}"
