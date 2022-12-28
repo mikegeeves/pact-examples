@@ -90,5 +90,13 @@ examples-python-date: ## Example of running a specific example for debugging
 	./scripts/run_examples.py --suite term --example example-date
 
 clean: ## Clean out logs etc which may have been created from running tests locally
-	# Pact logs
+	@echo "\n${green}Cleaning out:${sgr0}"
+
+	@echo "\n${green} - Pact logs and output from running locally${sgr0}"
 	rm -Rf ./suites/*/*/*/*/logs
+	rm -Rf ./suites/*/*/*/*/output
+
+	@echo "\n${green} - Python specific${sgr0}"
+	rm -Rf ./suites/*/*/*/*/.pytest_cache
+
+	@echo "\n${green} - Finished!${sgr0}"
