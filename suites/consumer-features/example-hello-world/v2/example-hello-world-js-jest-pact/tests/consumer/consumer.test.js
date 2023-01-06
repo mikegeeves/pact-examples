@@ -24,11 +24,12 @@ pactWith(
       };
       beforeEach(() =>
         provider.addInteraction({
-          state: "Some bears exist",
-          uponReceiving: "a request for the Polar bear species",
+          state: "There are some bears",
+          uponReceiving: "A request for the Polar bear species",
           withRequest: {
             method: "GET",
-            path: "/species/Polar",
+            path: "/species",
+            query: "name=Polar",
           },
           willRespondWith: {
             status: 200,

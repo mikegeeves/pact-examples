@@ -13,7 +13,7 @@ class BearSpecies(object):
 
 class BearConsumer(object):
     """Demonstrate some basic functionality of how the Bear Consumer will interact
-    with the Bear Provider, in this case a simple get_bear."""
+    with the Bear Provider, in this case a simple get_species."""
 
     def __init__(self, base_uri: str):
         """Initialise the Consumer, in this case we only need to know the URI.
@@ -23,12 +23,12 @@ class BearConsumer(object):
         self.base_uri = base_uri
 
     def get_species(self, name: str) -> Optional[BearSpecies]:
-        """Fetch a Bear object by species from the server.
+        """Fetch a Bear Species object by name from the server.
 
         :param name: Species name to search for
         :return: BearSpecies details if found, None if not found
         """
-        uri = self.base_uri + "/species/" + name
+        uri = self.base_uri + "/species?name=" + name
         response = requests.get(uri)
         print(response.json())
         if response.status_code == 404:

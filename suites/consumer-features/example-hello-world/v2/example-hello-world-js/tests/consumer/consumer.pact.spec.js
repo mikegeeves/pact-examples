@@ -1,6 +1,6 @@
 const { Pact } = require("@pact-foundation/pact");
 const { BearApiClient } = require("../../src/consumer");
-const { Bear } = require("../../src/bear");
+const { BearSpecies } = require("../../src/bear-species");
 const { expect } = require("chai");
 
 // Pact annotated code block - Setting up the Consumer
@@ -28,15 +28,16 @@ describe("Bear API test", () => {
     };
 
     await mockProvider.addInteraction({
-      state: "Some bears exist",
-      uponReceiving: "a request for the Polar bear species",
+      state: "There are some bears",
+      uponReceiving: "A request for the Polar bear species",
       willRespondWith: {
         status: 200,
         body: expectedResponse,
       },
       withRequest: {
         method: "GET",
-        path: "/species/Polar",
+        path: "/species",
+        query: "name=Polar",
       },
     });
 
@@ -45,7 +46,7 @@ describe("Bear API test", () => {
     const bear = await api.getSpecies("Polar");
 
     // (6) Assert that we got the expected response
-    expect(bear).to.deep.equal(new Bear("Polar", "White"));
+    expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
     //  End Pact annotated code block
   });
 });

@@ -3,7 +3,6 @@
 import atexit
 import logging
 import os
-from pathlib import Path
 
 import pytest
 from pact import Consumer, Provider
@@ -81,9 +80,9 @@ def test_get_polar_bear(pact, consumer):
     # appropriate content e.g. for ip_address.
     # Pact annotated code block - Defining the pact, and calling the consumer
     (
-        pact.given("Some bears exist")
-        .upon_receiving("a request for the Polar bear species")
-        .with_request("GET", "/species/Polar")
+        pact.given("There are some bears")
+        .upon_receiving("A request for the Polar bear species")
+        .with_request("GET", "/species", query={"name": "Polar"})
         .will_respond_with(200, body=expected)
     )
 

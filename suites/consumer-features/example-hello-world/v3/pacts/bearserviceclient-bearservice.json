@@ -7,15 +7,16 @@
   },
   "interactions": [
     {
-      "description": "a request for the Polar bear species",
+      "description": "A request for the Polar bear species",
       "providerStates": [
         {
-          "name": "Some bears exist"
+          "name": "There are some bears"
         }
       ],
       "request": {
         "method": "GET",
-        "path": "/species/Polar"
+        "path": "/species/",
+        "query": "name=Polar"
       },
       "response": {
         "status": 200,

@@ -72,15 +72,16 @@ const expectedResponse = {
 };
 
 await mockProvider.addInteraction({
-  state: "Some bears exist",
-  uponReceiving: "a request for the Polar bear species",
+  state: "There are some bears",
+  uponReceiving: "A request for the Polar bear species",
   willRespondWith: {
     status: 200,
     body: expectedResponse,
   },
   withRequest: {
     method: "GET",
-    path: "/species/Polar",
+    path: "/species",
+    query: "name=Polar",
   },
 });
 
@@ -89,7 +90,7 @@ const api = new BearApiClient(mockProvider.mockService.baseUrl);
 const bear = await api.getSpecies("Polar");
 
 // (6) Assert that we got the expected response
-expect(bear).to.deep.equal(new Bear("Polar", "White"));
+expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
 ```
 
 </TabItem>
@@ -97,9 +98,9 @@ expect(bear).to.deep.equal(new Bear("Polar", "White"));
 
 ```python
     (
-        pact.given("Some bears exist")
-        .upon_receiving("a request for the Polar bear species")
-        .with_request("GET", "/species/Polar")
+        pact.given("There are some bears")
+        .upon_receiving("A request for the Polar bear species")
+        .with_request("GET", "/species", query={"name": "Polar"})
         .will_respond_with(200, body=expected)
     )
 
