@@ -21,13 +21,12 @@ const mockProvider = new Pact({
   dir: "./output/pacts",
 });
 
-describe("BearSpecies API test", () => {
+describe("Bear API test", () => {
   // (3) Setup Pact lifecycle hooks
   before(() => mockProvider.setup());
   afterEach(() => mockProvider.verify());
   after(() => mockProvider.finalize());
 ```
-
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -40,7 +39,6 @@ describe("BearSpecies API test", () => {
         log_dir=LOG_DIR,
     )
 ```
-
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
@@ -53,7 +51,6 @@ const mockProvider = new PactV3({
   dir: "./output/pacts",
 });
 ```
-
 </TabItem>
 </Tabs>
 
@@ -65,47 +62,46 @@ Each Pact is declared in a "given, when, then" style.
 <TabItem value="js-v2" label="js-v2">
 
 ```js
-// (4) Arrange
-const expectedResponse = {
-  name: "Polar",
-  colour: "White",
-};
+    // (4) Arrange
+    const expectedResponse = {
+      name: "Polar",
+      colour: "White",
+    };
 
-await mockProvider.addInteraction({
-  state: "Some bears exist",
-  uponReceiving: "a request for the Polar bear species",
-  willRespondWith: {
-    status: 200,
-    body: expectedResponse,
-  },
-  withRequest: {
-    method: "GET",
-    path: "/species/Polar",
-  },
-});
+    await mockProvider.addInteraction({
+      state: "There are some bears",
+      uponReceiving: "A request for the Bear species with id 1",
+      willRespondWith: {
+        status: 200,
+        body: expectedResponse,
+      },
+      withRequest: {
+        method: "GET",
+        path: "/species/1",
+      },
+    });
 
-// (5) Act
-const api = new BearApiClient(mockProvider.mockService.baseUrl);
-const bear = await api.getSpecies("Polar");
+    // (5) Act
+    const api = new BearApiClient(mockProvider.mockService.baseUrl);
+    const bear = await api.getSpecies(1);
 
-// (6) Assert that we got the expected response
-expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
+    // (6) Assert that we got the expected response
+    expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
 ```
-
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
 ```python
     (
-        pact.given("Some bears exist")
-        .upon_receiving("a request for the Polar bear species")
-        .with_request("GET", "/species/Polar")
+        pact.given("There are some bears")
+        .upon_receiving("A request for the Bear species with id 1")
+        .with_request("GET", "/species/1")
         .will_respond_with(200, body=expected)
     )
 
     with pact:
         # Perform the actual request
-        species = consumer.get_species("Polar")
+        species = consumer.get_species(1)
 
         # In this case the mock Provider will have returned a valid response
         assert species.name == "Polar"
@@ -114,39 +110,37 @@ expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
         # Make sure that all interactions defined occurred
         pact.verify()
 ```
-
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
 ```js
-// (4) Arrange
-const expectedResponse = {
-  name: "Polar",
-  colour: "White",
-};
+    // (4) Arrange
+    const expectedResponse = {
+      name: "Polar",
+      colour: "White",
+    };
 
-mockProvider
-  .given("Some bears exist")
-  .uponReceiving("a request for the Polar bear species")
-  .withRequest({
-    method: "GET",
-    path: "/species/Polar",
-  })
-  .willRespondWith({
-    status: 200,
-    body: { ...expectedResponse },
-  });
+    mockProvider
+      .given("There are some bears")
+      .uponReceiving("A request for the Bear species with id 1")
+      .withRequest({
+        method: "GET",
+        path: "/species/1",
+      })
+      .willRespondWith({
+        status: 200,
+        body: { ...expectedResponse },
+      });
 
-return await mockProvider.executeTest(async (mockserver) => {
-  // (5) Act
-  const api = new BearApiClient(mockserver.url);
-  const bear = await api.getSpecies("Polar");
+    return await mockProvider.executeTest(async (mockserver) => {
+      // (5) Act
+      const api = new BearApiClient(mockserver.url);
+      const bear = await api.getSpecies(1);
 
-  // (6) Assert that we got the expected response
-  expect(bear).to.deep.equal(expectedResponse);
-});
+      // (6) Assert that we got the expected response
+      expect(bear).to.deep.equal(expectedResponse);
+    });
 ```
-
 </TabItem>
 </Tabs>
 
@@ -158,6 +152,5 @@ Some other code snippets would go here when we have some
 <TabItem value="None available" label="None available">
 
 TODO: No code snippets available for this example
-
 </TabItem>
 </Tabs>
