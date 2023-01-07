@@ -396,7 +396,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                             output_readme.write(line)
 
                     # Add the contents of the Pact for each spec
-                    output_readme.write("## Pacts\n\n")
+                    output_readme.write("\n## Pacts\n\n")
                     output_readme.write("<Tabs>\n")
                     for spec in languages_and_specs.specs:
                         pacts = [pathlib.Path(x) for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]

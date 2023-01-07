@@ -103,4 +103,7 @@ clean: ## Clean out logs etc which may have been created from running tests loca
 	rm -Rf ./suites/*/*/*/*/node_modules
 	rm -Rf ./languages/js/*/node_modules
 
+	@echo "\n${green} - Generated output${sgr0}"
+	rm -Rf ./output
+
 	@echo "\n${green} - Finished!${sgr0}"
