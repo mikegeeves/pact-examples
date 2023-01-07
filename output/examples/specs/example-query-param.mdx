@@ -6,3 +6,92 @@ import TabItem from "@theme/TabItem";
 Spec V2: Query strings are stored as a string e.g. `"query": "name=Polar"`. Spec V3: Query strings are stored as Map (to an array) instead of strings e.g. `"query": {"name": ["Polar"]}`
 
 From [Pact Specification V3](https://github.com/pact-foundation/pact-specification/tree/version-3)
+
+## Pacts
+
+<Tabs>
+<TabItem value="v2" label="v2">
+
+```json
+{
+  "consumer": {
+    "name": "BearServiceClient"
+  },
+  "provider": {
+    "name": "BearService"
+  },
+  "interactions": [
+    {
+      "description": "A request for the Polar bear species by name",
+      "providerState": "There are some bears",
+      "request": {
+        "method": "GET",
+        "path": "/species",
+        "query": "name=Polar"
+      },
+      "response": {
+        "status": 200,
+        "headers": {},
+        "body": {
+          "name": "Polar",
+          "colour": "White"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="v3" label="v3">
+
+```json
+{
+  "consumer": {
+    "name": "BearServiceClient"
+  },
+  "provider": {
+    "name": "BearService"
+  },
+  "interactions": [
+    {
+      "description": "A request for the Polar bear species by name",
+      "providerStates": [
+        {
+          "name": "There are some bears"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/species",
+        "query": {
+          "name": ["Polar"]
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {},
+        "body": {
+          "name": "Polar",
+          "colour": "White"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  }
+}
+```
+
+</TabItem>
+
+</Tabs>

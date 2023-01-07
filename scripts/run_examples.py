@@ -395,11 +395,25 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                         else:
                             output_readme.write(line)
 
-        # with open(output_path, 'w') as f:
-        #     f.write('\n')
-        #     f.write(details)
-        #     f.write(results)
-        #     f.write('\n')
+                    # Add the contents of the Pact for each spec
+                    output_readme.write("## Pacts\n\n")
+                    output_readme.write("<Tabs>\n")
+                    for spec in languages_and_specs.specs:
+                        pacts = [pathlib.Path(x) for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
+
+                        output_readme.write(f'<TabItem value="{spec}" label="{spec}">\n\n')
+                        if pacts[0].is_file():
+                            # Write the contents of the Pact, in a json code block
+                            output_readme.write("```json\n")
+                            with open(pacts[0], "r") as p:
+                                lines = p.readlines()
+                                for line in lines:
+                                    output_readme.write(line)
+                            output_readme.write("```\n")
+                        else:
+                            output_readme.write(f"None available\n")
+                        output_readme.write("</TabItem>\n\n")
+                    output_readme.write("</Tabs>\n")
 
 
 def run_suite(root_path, suites_path, suite, languages=None, specs=None, examples=None):

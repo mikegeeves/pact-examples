@@ -161,3 +161,87 @@ TODO: No code snippets available for this example
 
 </TabItem>
 </Tabs>
+## Pacts
+
+<Tabs>
+<TabItem value="v2" label="v2">
+
+```json
+{
+  "consumer": {
+    "name": "BearServiceClient"
+  },
+  "provider": {
+    "name": "BearService"
+  },
+  "interactions": [
+    {
+      "description": "A request for the Bear species with id 1",
+      "providerState": "There are some bears",
+      "request": {
+        "method": "GET",
+        "path": "/species/1"
+      },
+      "response": {
+        "status": 200,
+        "headers": {},
+        "body": {
+          "name": "Polar",
+          "colour": "White"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
+```
+
+</TabItem>
+
+<TabItem value="v3" label="v3">
+
+```json
+{
+  "consumer": {
+    "name": "BearServiceClient"
+  },
+  "provider": {
+    "name": "BearService"
+  },
+  "interactions": [
+    {
+      "description": "A request for the Bear species with id 1",
+      "providerStates": [
+        {
+          "name": "There are some bears"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/species/1"
+      },
+      "response": {
+        "status": 200,
+        "headers": {},
+        "body": {
+          "name": "Polar",
+          "colour": "White"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  }
+}
+```
+
+</TabItem>
+
+</Tabs>
