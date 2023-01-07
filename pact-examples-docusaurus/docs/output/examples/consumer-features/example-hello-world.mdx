@@ -21,7 +21,7 @@ const mockProvider = new Pact({
   dir: "./output/pacts",
 });
 
-describe("Bear API test", () => {
+describe("BearSpecies API test", () => {
   // (3) Setup Pact lifecycle hooks
   before(() => mockProvider.setup());
   afterEach(() => mockProvider.verify());
@@ -89,7 +89,7 @@ const api = new BearApiClient(mockProvider.mockService.baseUrl);
 const bear = await api.getSpecies("Polar");
 
 // (6) Assert that we got the expected response
-expect(bear).to.deep.equal(new Bear("Polar", "White"));
+expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
 ```
 
 </TabItem>

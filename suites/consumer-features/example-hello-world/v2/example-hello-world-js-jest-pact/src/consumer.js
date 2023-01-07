@@ -6,9 +6,9 @@ class BearApiClient {
     this.url = url;
   }
 
-  async getSpecies(name) {
+  async getSpecies(id) {
     return axios
-      .get(`${this.url}/species?name=${name}`)
+      .get(`${this.url}/species/${id}`)
       .then((r) => new BearSpecies(r.data.name, r.data.colour));
   }
 }

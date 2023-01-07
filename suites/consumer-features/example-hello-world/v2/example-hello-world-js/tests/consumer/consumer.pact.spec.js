@@ -19,7 +19,7 @@ describe("Bear API test", () => {
   after(() => mockProvider.finalize());
   // End Pact annotated code block
 
-  it("get bear by name", async () => {
+  it("Get Bear species by id", async () => {
     //  Pact annotated code block - Defining the pact, and calling the consumer
     // (4) Arrange
     const expectedResponse = {
@@ -29,21 +29,20 @@ describe("Bear API test", () => {
 
     await mockProvider.addInteraction({
       state: "There are some bears",
-      uponReceiving: "A request for the Polar bear species",
+      uponReceiving: "A request for the Bear species with id 1",
       willRespondWith: {
         status: 200,
         body: expectedResponse,
       },
       withRequest: {
         method: "GET",
-        path: "/species",
-        query: "name=Polar",
+        path: "/species/1",
       },
     });
 
     // (5) Act
     const api = new BearApiClient(mockProvider.mockService.baseUrl);
-    const bear = await api.getSpecies("Polar");
+    const bear = await api.getSpecies(1);
 
     // (6) Assert that we got the expected response
     expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));

@@ -81,14 +81,14 @@ def test_get_polar_bear(pact, consumer):
     # Pact annotated code block - Defining the pact, and calling the consumer
     (
         pact.given("There are some bears")
-        .upon_receiving("A request for the Polar bear species")
-        .with_request("GET", "/species", query={"name": "Polar"})
+        .upon_receiving("A request for the Bear species with id 1")
+        .with_request("GET", "/species/1")
         .will_respond_with(200, body=expected)
     )
 
     with pact:
         # Perform the actual request
-        species = consumer.get_species("Polar")
+        species = consumer.get_species(1)
 
         # In this case the mock Provider will have returned a valid response
         assert species.name == "Polar"

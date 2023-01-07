@@ -17,7 +17,7 @@ pactWith(
     // End Pact annotated code block
 
     //  Pact annotated code block - Defining the pact, and calling the consumer
-    describe("test bear endpoint", () => {
+    describe("Test Bear species endpoint", () => {
       const expectedResponse = {
         name: "Polar",
         colour: "White",
@@ -25,11 +25,10 @@ pactWith(
       beforeEach(() =>
         provider.addInteraction({
           state: "There are some bears",
-          uponReceiving: "A request for the Polar bear species",
+          uponReceiving: "A request for the Bear species with id 1",
           withRequest: {
             method: "GET",
-            path: "/species",
-            query: "name=Polar",
+            path: "/species/1",
           },
           willRespondWith: {
             status: 200,
@@ -38,8 +37,8 @@ pactWith(
         })
       );
 
-      it("returns a bear", () => {
-        return client.getSpecies("Polar").then((resp) => {
+      it("Returns a Bear species", () => {
+        return client.getSpecies(1).then((resp) => {
           expect(resp).toEqual(expectedResponse);
         });
       });

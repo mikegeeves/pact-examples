@@ -58,6 +58,7 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
                     for data in [actual, expected]:
                         data["metadata"].pop("pact-js", None)
                         data["metadata"].pop("pactRust", None)
+                        data["metadata"].pop("pactSpecification", None)
 
                         # Pact-JS seems to automatically include Content-Type, while Python does not
                         # TODO: What to do about header differences?

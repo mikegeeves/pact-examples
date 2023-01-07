@@ -1,15 +1,15 @@
 const axios = require("axios");
-const { Bear } = require("./bear");
+const { BearSpecies } = require("./bear-species");
 
 class BearApiClient {
   constructor(url) {
     this.url = url;
   }
 
-  async getSpecies(name) {
+  async getSpecies(id) {
     return axios
-      .get(`${this.url}/species/${name}`)
-      .then((r) => new Bear(r.data.name, r.data.colour));
+      .get(`${this.url}/species/${id}`)
+      .then((r) => new BearSpecies(r.data.name, r.data.colour));
   }
 }
 module.exports = {

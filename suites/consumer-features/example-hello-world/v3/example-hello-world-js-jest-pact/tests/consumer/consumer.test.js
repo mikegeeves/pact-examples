@@ -11,7 +11,7 @@ pactWith(
   },
   // End Pact annotated code block
   (interaction) => {
-    interaction("test bear endpoint", ({ provider, execute }) => {
+    interaction("Test Bear species endpoint", ({ provider, execute }) => {
       //  Pact annotated code block - Defining the pact, and calling the consumer
 
       const expectedResponse = {
@@ -21,11 +21,11 @@ pactWith(
 
       beforeEach(() =>
         provider
-          .given("Some bears exist")
-          .uponReceiving("a request for the Polar bear species")
+          .given("There are some bears")
+          .uponReceiving("A request for the Bear species with id 1")
           .withRequest({
             method: "GET",
-            path: "/species/Polar",
+            path: "/species/1",
           })
           .willRespondWith({
             status: 200,
@@ -33,8 +33,8 @@ pactWith(
           })
       );
 
-      execute("returns a bear", (mockserver) =>
-        new BearApiClient(mockserver.url).getSpecies("Polar").then((resp) => {
+      execute("Returns a Bear species", (mockserver) =>
+        new BearApiClient(mockserver.url).getSpecies(1).then((resp) => {
           expect(resp).toEqual(expectedResponse);
         })
       );

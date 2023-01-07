@@ -73,21 +73,20 @@ const expectedResponse = {
 
 await mockProvider.addInteraction({
   state: "There are some bears",
-  uponReceiving: "A request for the Polar bear species",
+  uponReceiving: "A request for the Bear species with id 1",
   willRespondWith: {
     status: 200,
     body: expectedResponse,
   },
   withRequest: {
     method: "GET",
-    path: "/species",
-    query: "name=Polar",
+    path: "/species/1",
   },
 });
 
 // (5) Act
 const api = new BearApiClient(mockProvider.mockService.baseUrl);
-const bear = await api.getSpecies("Polar");
+const bear = await api.getSpecies(1);
 
 // (6) Assert that we got the expected response
 expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
@@ -99,14 +98,14 @@ expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
 ```python
     (
         pact.given("There are some bears")
-        .upon_receiving("A request for the Polar bear species")
-        .with_request("GET", "/species", query={"name": "Polar"})
+        .upon_receiving("A request for the Bear species with id 1")
+        .with_request("GET", "/species/1")
         .will_respond_with(200, body=expected)
     )
 
     with pact:
         # Perform the actual request
-        species = consumer.get_species("Polar")
+        species = consumer.get_species(1)
 
         # In this case the mock Provider will have returned a valid response
         assert species.name == "Polar"
@@ -127,11 +126,11 @@ const expectedResponse = {
 };
 
 mockProvider
-  .given("Some bears exist")
-  .uponReceiving("a request for the Polar bear species")
+  .given("There are some bears")
+  .uponReceiving("A request for the Bear species with id 1")
   .withRequest({
     method: "GET",
-    path: "/species/Polar",
+    path: "/species/1",
   })
   .willRespondWith({
     status: 200,
@@ -141,7 +140,7 @@ mockProvider
 return await mockProvider.executeTest(async (mockserver) => {
   // (5) Act
   const api = new BearApiClient(mockserver.url);
-  const bear = await api.getSpecies("Polar");
+  const bear = await api.getSpecies(1);
 
   // (6) Assert that we got the expected response
   expect(bear).to.deep.equal(expectedResponse);
