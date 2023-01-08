@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from difflib import unified_diff
 
 import click
 import glob
@@ -398,7 +399,9 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                     # Add the contents of the Pact for each spec
                     output_readme.write("\n## Pacts\n\n")
                     output_readme.write("<Tabs>\n")
-                    for spec in languages_and_specs.specs:
+                    for idx in range(len(languages_and_specs.specs)):
+                        spec = languages_and_specs.specs[idx]
+
                         pacts = [pathlib.Path(x) for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
 
                         output_readme.write(f'<TabItem value="{spec}" label="{spec}">\n\n')
@@ -406,13 +409,36 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                             # Write the contents of the Pact, in a json code block
                             output_readme.write("```json\n")
                             with open(pacts[0], "r") as p:
-                                lines = p.readlines()
-                                for line in lines:
+                                spec_pact_lines = p.readlines()
+                                for line in spec_pact_lines:
                                     output_readme.write(line)
                             output_readme.write("```\n")
                         else:
                             output_readme.write(f"None available\n")
                         output_readme.write("</TabItem>\n\n")
+
+                        # If there is another spec after this one, show a diff
+                        if idx + 1 < len(languages_and_specs.specs):
+                            next_spec = languages_and_specs.specs[idx + 1]
+
+                            next_pacts = [
+                                pathlib.Path(x) for x in glob.glob(f"{examples_path}/{example}/{next_spec}/pacts/*")
+                            ]
+                            if next_pacts[0].is_file():
+                                # Read in the next spec
+                                with open(next_pacts[0], "r") as p:
+                                    next_spec_pact_lines = p.readlines()
+
+                                # Write the diff between the two Pact files in a TabItem
+                                output_readme.write(
+                                    f'<TabItem value="{spec}-{next_spec} diff" label="{spec}-{next_spec} diff">\n\n'
+                                )
+                                output_readme.write("```diff\n")
+                                output_readme.writelines(
+                                    unified_diff(spec_pact_lines, next_spec_pact_lines, fromfile=spec, tofile=next_spec)
+                                )
+                                output_readme.write("```\n")
+                                output_readme.write("</TabItem>\n\n")
                     output_readme.write("</Tabs>\n")
 
 

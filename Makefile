@@ -75,10 +75,7 @@ examples-real:
 
 examples: build examples-real pca ## Run all the examples, lint at the end
 
-serve: examples ## Build the examples then spin up a docker docusaurus, with the output dir available
-	@echo "\n${green}Clean output dir${sgr0}"
-	rm -Rf output/
-	mkdir output
+serve: clean examples ## Build the examples then spin up a docker docusaurus, with the output dir available
 	@echo "\n${green}Docs will be available under:${sgr0}"
 	@echo " - http://localhost:3000/docs/pact-examples"
 	@echo

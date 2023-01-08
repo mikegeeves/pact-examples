@@ -27,6 +27,7 @@ describe("Bear API test", () => {
   afterEach(() => mockProvider.verify());
   after(() => mockProvider.finalize());
 ```
+
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -39,6 +40,7 @@ describe("Bear API test", () => {
         log_dir=LOG_DIR,
     )
 ```
+
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
@@ -51,6 +53,7 @@ const mockProvider = new PactV3({
   dir: "./output/pacts",
 });
 ```
+
 </TabItem>
 </Tabs>
 
@@ -62,32 +65,33 @@ Each Pact is declared in a "given, when, then" style.
 <TabItem value="js-v2" label="js-v2">
 
 ```js
-    // (4) Arrange
-    const expectedResponse = {
-      name: "Polar",
-      colour: "White",
-    };
+// (4) Arrange
+const expectedResponse = {
+  name: "Polar",
+  colour: "White",
+};
 
-    await mockProvider.addInteraction({
-      state: "There are some bears",
-      uponReceiving: "A request for the Bear species with id 1",
-      willRespondWith: {
-        status: 200,
-        body: expectedResponse,
-      },
-      withRequest: {
-        method: "GET",
-        path: "/species/1",
-      },
-    });
+await mockProvider.addInteraction({
+  state: "There are some bears",
+  uponReceiving: "A request for the Bear species with id 1",
+  willRespondWith: {
+    status: 200,
+    body: expectedResponse,
+  },
+  withRequest: {
+    method: "GET",
+    path: "/species/1",
+  },
+});
 
-    // (5) Act
-    const api = new BearApiClient(mockProvider.mockService.baseUrl);
-    const bear = await api.getSpecies(1);
+// (5) Act
+const api = new BearApiClient(mockProvider.mockService.baseUrl);
+const bear = await api.getSpecies(1);
 
-    // (6) Assert that we got the expected response
-    expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
+// (6) Assert that we got the expected response
+expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
 ```
+
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -110,37 +114,39 @@ Each Pact is declared in a "given, when, then" style.
         # Make sure that all interactions defined occurred
         pact.verify()
 ```
+
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
 ```js
-    // (4) Arrange
-    const expectedResponse = {
-      name: "Polar",
-      colour: "White",
-    };
+// (4) Arrange
+const expectedResponse = {
+  name: "Polar",
+  colour: "White",
+};
 
-    mockProvider
-      .given("There are some bears")
-      .uponReceiving("A request for the Bear species with id 1")
-      .withRequest({
-        method: "GET",
-        path: "/species/1",
-      })
-      .willRespondWith({
-        status: 200,
-        body: { ...expectedResponse },
-      });
+mockProvider
+  .given("There are some bears")
+  .uponReceiving("A request for the Bear species with id 1")
+  .withRequest({
+    method: "GET",
+    path: "/species/1",
+  })
+  .willRespondWith({
+    status: 200,
+    body: { ...expectedResponse },
+  });
 
-    return await mockProvider.executeTest(async (mockserver) => {
-      // (5) Act
-      const api = new BearApiClient(mockserver.url);
-      const bear = await api.getSpecies(1);
+return await mockProvider.executeTest(async (mockserver) => {
+  // (5) Act
+  const api = new BearApiClient(mockserver.url);
+  const bear = await api.getSpecies(1);
 
-      // (6) Assert that we got the expected response
-      expect(bear).to.deep.equal(expectedResponse);
-    });
+  // (6) Assert that we got the expected response
+  expect(bear).to.deep.equal(expectedResponse);
+});
 ```
+
 </TabItem>
 </Tabs>
 
@@ -152,6 +158,7 @@ Some other code snippets would go here when we have some
 <TabItem value="None available" label="None available">
 
 TODO: No code snippets available for this example
+
 </TabItem>
 </Tabs>
 
@@ -193,6 +200,38 @@ TODO: No code snippets available for this example
   }
 }
 ```
+
+</TabItem>
+
+<TabItem value="v2-v3 diff" label="v2-v3 diff">
+
+```diff
+--- v2
++++ v3
+@@ -8,7 +8,11 @@
+   "interactions": [
+     {
+       "description": "A request for the Bear species with id 1",
+-      "providerState": "There are some bears",
++      "providerStates": [
++        {
++          "name": "There are some bears"
++        }
++      ],
+       "request": {
+         "method": "GET",
+         "path": "/species/1"
+@@ -25,7 +29,7 @@
+   ],
+   "metadata": {
+     "pactSpecification": {
+-      "version": "2.0.0"
++      "version": "3.0.0"
+     }
+   }
+ }
+```
+
 </TabItem>
 
 <TabItem value="v3" label="v3">
@@ -234,6 +273,7 @@ TODO: No code snippets available for this example
   }
 }
 ```
+
 </TabItem>
 
 </Tabs>
