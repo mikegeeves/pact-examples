@@ -22,19 +22,18 @@ class BearConsumer(object):
         """
         self.base_uri = base_uri
 
-    def get_species(self, name: str) -> Optional[BearSpecies]:
+    def get_birthday(self, name: str) -> Optional[BearSpecies]:
         """Fetch a Bear object by species from the server.
 
         :param name: Species name to search for
         :return: BearSpecies details if found, None if not found
         """
-        uri = self.base_uri + "/species/" + name
+        uri = self.base_uri + "/species/" + name + "/birthday"
         response = requests.get(uri)
         print(response.json())
         if response.status_code == 404:
             return None
 
-        name = response.json()["name"]
-        colour = response.json()["colour"]
+        birthday = response.json()["birthday"]
 
         return BearSpecies(name, colour)

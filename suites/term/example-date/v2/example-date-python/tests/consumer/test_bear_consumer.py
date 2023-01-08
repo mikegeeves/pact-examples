@@ -51,9 +51,9 @@ def test_get_polar_bear_birthday(pact, consumer):
 
     # Pact annotated code block - Defining the pact, and calling the consumer
     (
-        pact.given("Some bears exist")
-        .upon_receiving("a request for the Polar Bear's birthday")
-        .with_request("GET", "/Polar/birthday")
+        pact.given("There are some bears")
+        .upon_receiving("A request for the first Bear's birthday")
+        .with_request("GET", "/bear/1/birthday")
         .will_respond_with(200, body=expected)
     )
 
@@ -62,8 +62,7 @@ def test_get_polar_bear_birthday(pact, consumer):
         species = consumer.get_birthday("Polar")
 
         # In this case the mock Provider will have returned a valid response
-        assert species.name == "Polar"
-        assert species.colour == "White"
+        assert species.birthday == "2010-07-19"
 
         # Make sure that all interactions defined occurred
         pact.verify()
