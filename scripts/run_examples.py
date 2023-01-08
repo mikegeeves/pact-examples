@@ -177,7 +177,7 @@ def _extract_first_paragraph(source, example="", suite=""):
             html = md.convert(data)
 
             soup = BeautifulSoup(html, "html.parser")
-            description = [x.text for x in list(soup.children) if x.name == "p"][0]
+            description = [x.text for x in list(soup.children) if x.name in ["ul", "p"]][0].replace("\n", "<br/>")
 
         example_link = f"**[{example}](examples/{suite}/{example})**"
     else:
@@ -342,7 +342,7 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
 def _generate_example_docs(root_path, examples_path, examples, languages_and_specs, suite):
     print()
     print(f"{bcolors.HEADER}{bcolors.BOLD}Generating example docs{bcolors.ENDC}")
-    os.makedirs(root_path.joinpath("output").joinpath("examples").joinpath(suite), exist_ok=True)
+    os.makedirs(root_path.joinpath("output").joinpath("Examples").joinpath(suite), exist_ok=True)
 
     code_blocks = _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs)
     print("code_blocks:")
@@ -353,7 +353,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
     for example in examples:
         print(f"{bcolors.HEADER}Example: {example}{bcolors.ENDC}")
         input_path = examples_path.joinpath(example).joinpath("README.md")
-        output_path = root_path.joinpath("output").joinpath("examples").joinpath(suite).joinpath(f"{example}.mdx")
+        output_path = root_path.joinpath("output").joinpath("Examples").joinpath(suite).joinpath(f"{example}.mdx")
         print(f"reading from: {input_path}, writing to: {output_path=}")
 
         if os.path.exists(input_path):

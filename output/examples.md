@@ -20,14 +20,13 @@ This suite contains basic tests to demonstrate consumer features
 
 This suite contains tests to demonstrate differences between spec versions.
 
-| Example                                                       | Description                                                                                                                                                                            | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v2-jest-pact   | <br/>v3   | <br/>v3-jest-pact   | python<br/>v2   | <br/>v3   |
-|---------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-----------|-------------|---------------------|-----------|---------------------|-----------------|-----------|
-| **[example-query-param](examples/specs/example-query-param)** | Spec V2: Query strings are stored as a string e.g. "query": "name=Polar".  Spec V3: Query strings are stored as Map (to an array) instead of strings e.g. "query": {"name": \["Polar"\]} | -               | -         | ✅ Yes      | ✅ Yes              | ✅ Yes    | ✅ Yes              | ✅ Yes          | ❌ Error  |
+| Example                                                       | Description                                                                                                                                                                                         | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v2-jest-pact   | <br/>v3   | <br/>v3-jest-pact   | python<br/>v2   | <br/>v3   |
+|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|-----------|-------------|---------------------|-----------|---------------------|-----------------|-----------|
+| **[example-query-param](examples/specs/example-query-param)** | <br/>Spec V2: Query strings are stored as a string e.g. "query": "name=Polar".<br/>Spec V3: Query strings are stored as Map (to an array) instead of strings e.g. "query": {"name": \["Polar"\]}<br/> | -               | -         | ✅ Yes      | ✅ Yes              | ✅ Yes    | ✅ Yes              | ✅ Yes          | ❌ Error  |
 
 ## term
 
-This suite contains basic tests to demonstrate the example Term matchers provided in each language - such as IP address, timestamp - illustrating any
-differences.
+This suite contains basic tests to demonstrate the example Term matchers provided in each language - such as IP address, timestamp - illustrating any<br/>differences.
 
 | Example                  | Description                | broken<br/>v2   | <br/>v3   | js<br/>v2   | <br/>v3   | python<br/>v2   | <br/>v3   |
 |--------------------------|----------------------------|-----------------|-----------|-------------|-----------|-----------------|-----------|
