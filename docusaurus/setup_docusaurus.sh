@@ -13,8 +13,9 @@ rm -Rf pact-examples-docusaurus/blog pact-examples-docusaurus/docs/tutorial* pac
 rm -f pact-examples-docusaurus/static/img/undraw_docusaurus_tree.svg pact-examples-docusaurus/static/img/undraw_docusaurus_react.svg pact-examples-docusaurus/static/img/undraw_docusaurus_mountain.svg
 
 echo "- ${BLUE}Copy the output from running the examples${SGR0}"
-rm -Rf pact-examples-docusaurus/docs/output # Always refresh this
-cp -R output pact-examples-docusaurus/docs
+rm -Rf pact-examples-docusaurus/docs # Always refresh this
+mkdir pact-examples-docusaurus/docs
+cp -R output/* pact-examples-docusaurus/docs/
 cp -R README.md pact-examples-docusaurus/docs/pact-examples.md
 
 echo "- ${BLUE}Replace some of the default docusaurus config with our own${SGR0}"
