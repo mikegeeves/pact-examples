@@ -73,6 +73,10 @@ examples-real:
 	scripts/run_examples.sh
 	@echo "\n${green}Examples finished, linting may now be needed!${sgr0}"
 
+	# TODO: Seem to get formatting differences after the test actions run and build
+	# Not sure if this is helping
+	.git/hooks/pre-commit
+
 examples: build examples-real pca ## Run all the examples, lint at the end
 
 serve: clean examples ## Build the examples then spin up a docker docusaurus, with the output dir available
