@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { BearSpecies } = require("./bear-species");
 
-class BearApiClient {
+class BearConsumer {
   constructor(url) {
     this.url = url;
   }
@@ -13,5 +13,5 @@ class BearApiClient {
   }
 }
 module.exports = {
-  BearApiClient,
+  BearConsumer,
 };

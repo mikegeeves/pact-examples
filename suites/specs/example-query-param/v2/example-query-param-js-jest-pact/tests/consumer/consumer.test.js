@@ -1,6 +1,6 @@
 // Pact annotated code block - Setting up the Consumer
 const { pactWith } = require("jest-pact");
-const { BearApiClient } = require("../../src/consumer");
+const { BearConsumer } = require("../../src/consumer");
 
 pactWith(
   {
@@ -12,7 +12,7 @@ pactWith(
     let client;
 
     beforeEach(() => {
-      client = new BearApiClient(provider.mockService.baseUrl);
+      client = new BearConsumer(provider.mockService.baseUrl);
     });
     // End Pact annotated code block
 

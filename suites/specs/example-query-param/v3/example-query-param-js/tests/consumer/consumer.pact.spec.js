@@ -1,5 +1,5 @@
 const { PactV3 } = require("@pact-foundation/pact");
-const { BearApiClient } = require("../../src/consumer");
+const { BearConsumer } = require("../../src/consumer");
 const { BearSpecies } = require("../../src/bear-species");
 const { expect } = require("chai");
 
@@ -37,7 +37,7 @@ describe("Bear API test", () => {
 
     return await mockProvider.executeTest(async (mockserver) => {
       // (5) Act
-      const api = new BearApiClient(mockserver.url);
+      const api = new BearConsumer(mockserver.url);
       const bear = await api.getSpecies("Polar");
 
       // (6) Assert that we got the expected response

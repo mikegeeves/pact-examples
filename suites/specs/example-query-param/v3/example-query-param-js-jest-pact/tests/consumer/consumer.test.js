@@ -1,6 +1,6 @@
 // Pact annotated code block - Setting up the Consumer
 const { pactWith } = require("jest-pact/dist/v3");
-const { BearApiClient } = require("../../src/consumer");
+const { BearConsumer } = require("../../src/consumer");
 
 // Pact annotated code block - Setting up the Consumer
 pactWith(
@@ -35,7 +35,7 @@ pactWith(
       );
 
       execute("Returns a bear species", (mockserver) =>
-        new BearApiClient(mockserver.url).getSpecies("Polar").then((resp) => {
+        new BearConsumer(mockserver.url).getSpecies("Polar").then((resp) => {
           expect(resp).toEqual(expectedResponse);
         })
       );

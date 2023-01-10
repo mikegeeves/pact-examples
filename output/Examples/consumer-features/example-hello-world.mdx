@@ -85,7 +85,7 @@ await mockProvider.addInteraction({
 });
 
 // (5) Act
-const api = new BearApiClient(mockProvider.mockService.baseUrl);
+const api = new BearConsumer(mockProvider.mockService.baseUrl);
 const bear = await api.getSpecies(1);
 
 // (6) Assert that we got the expected response
