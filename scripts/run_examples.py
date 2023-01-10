@@ -506,7 +506,6 @@ def prepare_output(root_path):
         - `Yes`: Example runs successfully, and generates the expected Pactfile (Consumer), or verifies successfully against the provided Pactfile (Provider)
         - `-`: No example to test found
         - `Error`: Found an example, but the test was unsuccessful
-
     """
     )
 
