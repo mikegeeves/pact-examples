@@ -74,6 +74,7 @@ mockProvider
   .withRequest({
     method: "GET",
     path: "/species",
+    // highlight-next-line
     query: { name: "Polar" },
   })
   .willRespondWith({
@@ -92,6 +93,7 @@ provider
   .withRequest({
     method: "GET",
     path: "/species",
+    // highlight-next-line
     query: { name: "Polar" },
   })
   .willRespondWith({
