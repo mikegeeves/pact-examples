@@ -96,7 +96,7 @@ Current structure and purpose:
                 - bearserviceclient-bearservice.json <-- expected pact(s)
 ```
 
-In this case, only `python` implements this example for spec `v2`. A single `pact` is expected to be generated.
+In this case, `python`, `js` and `js` using `jest-pact` implement this example for spec `v2`. A single `pact` is expected to be generated.
 
 ```
 TODO: Currently naming with a hardcoded string of `LANGUAGE` which is replaced to verify the pact matches, seems clunky
