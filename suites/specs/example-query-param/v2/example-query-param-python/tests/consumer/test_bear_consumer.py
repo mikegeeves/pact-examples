@@ -80,6 +80,7 @@ def test_get_polar_bear(pact, consumer):
     (
         pact.given("There are some bears")
         .upon_receiving("A request for the Polar bear species by name")
+        # highlight-next-line
         .with_request("GET", "/species", query={"name": "Polar"})
         .will_respond_with(200, body=expected)
     )

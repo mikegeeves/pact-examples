@@ -26,6 +26,7 @@ describe("Bear API test", () => {
       .withRequest({
         method: "GET",
         path: "/species",
+        // highlight-next-line
         query: { name: "Polar" },
       })
       .willRespondWith({

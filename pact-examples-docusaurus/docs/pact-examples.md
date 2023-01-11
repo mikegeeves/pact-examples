@@ -70,35 +70,42 @@ An additional Dockerfile which _would_ generate `pact-examples-broken-v3` is pre
 
 ### Examples
 
+- Build all images, and run all the examples: `make examples`
+- Run specific test(s) \[TODO: maybe use make and pass params instead?\].
+  In this case use the js image(s), for spec v2 only, running all of suite *specs*
+  - `./scripts/run_examples.py --suite specs --language js --spec v2`
+
 #### Consumer Features
 
 Each example demonstrating a particular feature \[currently just looking at Pact consumers\], and the expected Pact file
-it should generate are contained withing the `examples` dir.
+it should generate are contained withing the `Examples` dir.
 
 Current structure and purpose:
 
 ```
-- examples
-    - example-consumer-sns                   <-- the feature description/name
-        - README.md                          <-- containing details about the feature. TODO: How much info to put here and how to use?
-        - v2                                 <-- the spec version it is for, indicating which spec version of the Docker image to run
-            - example-consumer-sns-python    <-- dir containing the implementation, in this case for python
+- Examples
+    - consumer-features                              <-- the feature description/name
+        - README.md                                  <-- containing details about the feature. TODO: How much info to put here and how to use?
+        - example-hello-world                        <-- dir containing the implementation, in this case for python
+          - v2                                       <-- the spec version it is for, indicating which spec version of the Docker image to run
+            - example-hello-world-python             <-- python implementation
+              - Makefile                             <-- containing a 'make test' which will run the tests
+            - example-hello-world-js                 <-- js implementation
+            - example-hello-world-js-jest-pact       <-- js implementation, 'jest-pact' flavour
             - pacts
-                - pact-example-consumer-sns-LANGUAGE-pact-example-provider-sns-LANGUAGE.json <- expected pact(s)
-        - v3
-            - example-consumer-sns-python
-            - pacts
-                - pact-example-consumer-sns-LANGUAGE-pact-example-provider-sns-LANGUAGE.json
+                - bearserviceclient-bearservice.json <-- expected pact(s)
 ```
 
-In this case, only `python` implements this example for spec `v3`. A single `pact` is expected to be generated.
+In this case, only `python` implements this example for spec `v2`. A single `pact` is expected to be generated.
 
 ```
 TODO: Currently naming with a hardcoded string of `LANGUAGE` which is replaced to verify the pact matches, seems clunky
 ```
 
-Each example is expected to contain a `Makefile`, from which a `make test` can be performed using the identified Docker
-image. Pacts are expected to be outputted to the `pacts` dir within the example dir.
+- Each example is expected to contain a `Makefile`, from which a `make test` can be performed using the identified Docker
+  image.
+- Pact files Pacts are expected to be outputted to `output/pacts` dir within the example dir (mounted via Docker), and will be
+  compared against the pact file in the `pacts` dir.
 
 #### Verifier
 
@@ -142,9 +149,14 @@ pact = Consumer("BearServiceClient").has_pact_with(
 # End Pact annotated code block
 ```
 
-When running the examples, a .mdx file containing Tabs is generated under output/examples
+When running the examples, .md and .mdx file containing the information, tables,
+Tabs etc are generated under output.
 
-To build, run examples, and spin up Docusaurus locally to serve the results: `make serve-docusaurus`
+For a particular suite, a file will be generated for each test, containing the
+annotated blocks where found as well as the Pact files and the diffs between Pact
+spec versions.
+
+To build, run examples, and spin up Docusaurus locally to serve the results: `make serve`
 
 For a GitHub build, a pact-examples dir will be created which will contain the docusaurus site to deploy.
 
@@ -187,9 +199,9 @@ For example, in this case:
 
 #### Consumer Features
 
-To attempt to run the provided examples: `make consumer-feature-examples`
+To attempt to run the provided examples: `make examples`
 
-This will additionally generate `output/consumer-feature-examples.md` containing a matrix of all examples against the languages and spec
+This will additionally generate `output/examples.md` containing a matrix of all examples against the languages and spec
 versions found, and if they match or not.
 
 When running, the `pacts` dir for each example is mapped to a tmp dir, where the pacts can then be compared against the

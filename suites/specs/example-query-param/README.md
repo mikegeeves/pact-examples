@@ -5,4 +5,6 @@
 
 See [Pact Specification V3](https://github.com/pact-foundation/pact-specification/tree/version-3)
 
-<!-- Annotated code block - Setting up the mock Provider -->
+Adding the query param(s) to the *request*:
+
+<!-- Annotated code block - Interaction -->
