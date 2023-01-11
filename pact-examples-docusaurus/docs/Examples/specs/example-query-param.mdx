@@ -8,7 +8,7 @@ import TabItem from "@theme/TabItem";
 
 See [Pact Specification V3](https://github.com/pact-foundation/pact-specification/tree/version-3)
 
-Adding the query param(s) to the _request_:
+Adding the query param(s) to the *request*:
 
 <Tabs>
 <TabItem value="js-v2" label="js-v2">
@@ -28,8 +28,8 @@ await mockProvider.addInteraction({
     query: { name: "Polar" },
   },
 });
-```
 
+```
 </TabItem>
 <TabItem value="js-jest-pact-v2" label="js-jest-pact-v2">
 
@@ -47,9 +47,9 @@ provider.addInteraction({
     status: 200,
     body: expectedResponse,
   },
-});
-```
+})
 
+```
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -63,7 +63,6 @@ provider.addInteraction({
 )
 
 ```
-
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
@@ -74,14 +73,15 @@ mockProvider
   .withRequest({
     method: "GET",
     path: "/species",
+    // highlight-next-line
     query: { name: "Polar" },
   })
   .willRespondWith({
     status: 200,
     body: { ...expectedResponse },
   });
-```
 
+```
 </TabItem>
 <TabItem value="js-jest-pact-v3" label="js-jest-pact-v3">
 
@@ -92,14 +92,15 @@ provider
   .withRequest({
     method: "GET",
     path: "/species",
+    // highlight-next-line
     query: { name: "Polar" },
   })
   .willRespondWith({
     status: 200,
     body: { ...expectedResponse },
-  });
-```
+  })
 
+```
 </TabItem>
 </Tabs>
 
@@ -142,7 +143,6 @@ provider
   }
 }
 ```
-
 </TabItem>
 
 <TabItem value="v2-v3 diff" label="v2-v3 diff">
@@ -180,7 +180,6 @@ provider
    }
  }
 ```
-
 </TabItem>
 
 <TabItem value="v3" label="v3">
@@ -225,7 +224,6 @@ provider
   }
 }
 ```
-
 </TabItem>
 
 </Tabs>

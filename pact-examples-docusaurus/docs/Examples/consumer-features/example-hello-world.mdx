@@ -22,8 +22,8 @@ const mockProvider = new Pact({
   cors: true,
   dir: "./output/pacts",
 });
-```
 
+```
 </TabItem>
 <TabItem value="js-jest-pact-v2" label="js-jest-pact-v2">
 
@@ -38,7 +38,6 @@ pactWith(
   (mockProvider) => {
 
 ```
-
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -53,7 +52,6 @@ mock_provider = Consumer("BearServiceClient").has_pact_with(
 )
 
 ```
-
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
@@ -65,8 +63,8 @@ const mockProvider = new PactV3({
   cors: true,
   dir: "./output/pacts",
 });
-```
 
+```
 </TabItem>
 <TabItem value="js-jest-pact-v3" label="js-jest-pact-v3">
 
@@ -80,7 +78,6 @@ pactWith(
   },
 
 ```
-
 </TabItem>
 </Tabs>
 
@@ -123,8 +120,8 @@ const bear = await api.getSpecies(1);
 
 // Assert: check the result is as expected
 expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
-```
 
+```
 </TabItem>
 <TabItem value="js-jest-pact-v2" label="js-jest-pact-v2">
 
@@ -159,8 +156,8 @@ describe("Test Bear species endpoint", () => {
     });
   });
 });
-```
 
+```
 </TabItem>
 <TabItem value="python-v2" label="python-v2">
 
@@ -186,7 +183,6 @@ with mock_provider:
     mock_provider.verify()
 
 ```
-
 </TabItem>
 <TabItem value="js-v3" label="js-v3">
 
@@ -217,8 +213,8 @@ return await mockProvider.executeTest(async (mockserver) => {
   // Assert: check the result is as expected
   expect(bear).to.deep.equal(expectedResponse);
 });
-```
 
+```
 </TabItem>
 <TabItem value="js-jest-pact-v3" label="js-jest-pact-v3">
 
@@ -250,8 +246,8 @@ execute("Returns a Bear species", (mockserver) =>
     expect(resp).toEqual(expectedResponse);
   })
 );
-```
 
+```
 </TabItem>
 </Tabs>
 
@@ -263,7 +259,6 @@ Some other code snippets would go here when we have some
 <TabItem value="None available" label="None available">
 
 TODO: No code snippets available for this section
-
 </TabItem>
 </Tabs>
 
@@ -305,7 +300,6 @@ TODO: No code snippets available for this section
   }
 }
 ```
-
 </TabItem>
 
 <TabItem value="v2-v3 diff" label="v2-v3 diff">
@@ -336,7 +330,6 @@ TODO: No code snippets available for this section
    }
  }
 ```
-
 </TabItem>
 
 <TabItem value="v3" label="v3">
@@ -378,7 +371,6 @@ TODO: No code snippets available for this section
   }
 }
 ```
-
 </TabItem>
 
 </Tabs>
