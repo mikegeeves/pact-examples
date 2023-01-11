@@ -34,7 +34,14 @@ def _get_languages_and_specs(
     languages_path: pathlib.Path, languages=None, specs=None, examples_path=None
 ) -> LanguagesAndSpecs:
     if not languages:
-        languages = sorted([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*") if os.path.isdir(x)])
+        # Find the languages, ignoring any directories which end with 'skip'
+        languages = sorted(
+            [
+                pathlib.Path(x).name
+                for x in glob.glob(f"{languages_path}/*")
+                if os.path.isdir(x) and not pathlib.Path(x).name.endswith("skip")
+            ]
+        )
     if not specs:
         specs = sorted(set([pathlib.Path(x).name for x in glob.glob(f"{languages_path}/*/*") if os.path.isdir(x)]))
 

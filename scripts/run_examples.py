@@ -428,7 +428,9 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                                         block_lines = _remove_leading_trailing_blank_lines_and_whitespace(block_lines)
 
                                         output_readme.write("\n")
-                                        output_readme.write("\n".join(block_lines))
+                                        for block_line in block_lines:
+                                            output_readme.write(f"{block_line}\n")
+
                                         output_readme.write("\n```\n")
                                         output_readme.write("</TabItem>\n")
 

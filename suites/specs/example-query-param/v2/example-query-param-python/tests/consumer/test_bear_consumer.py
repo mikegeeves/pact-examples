@@ -35,7 +35,6 @@ def consumer() -> BearConsumer:
 def pact(request):
     """Setup a Pact Consumer, which provides the Provider mock service and generates the Pacts"""
 
-    # Pact annotated code block - Setting up the Consumer
     pact = Consumer("BearServiceClient").has_pact_with(
         Provider("BearService"),
         host_name=PACT_MOCK_HOST,
@@ -43,7 +42,6 @@ def pact(request):
         pact_dir=PACT_DIR,
         log_dir=LOG_DIR,
     )
-    # End Pact annotated code block
 
     pact.start_service()
 
@@ -78,13 +76,15 @@ def test_get_polar_bear(pact, consumer):
     # "Like" the structure defined above. This means the mock provider will
     # return the EXACT content where defined, e.g. UserA for name, and SOME
     # appropriate content e.g. for ip_address.
-    # Pact annotated code block - Defining the pact, and calling the consumer
+    # Pact annotated code block - Interaction
     (
         pact.given("There are some bears")
         .upon_receiving("A request for the Polar bear species by name")
+        # highlight-next-line
         .with_request("GET", "/species", query={"name": "Polar"})
         .will_respond_with(200, body=expected)
     )
+    # End Pact annotated code block
 
     with pact:
         # Perform the actual request
@@ -96,4 +96,3 @@ def test_get_polar_bear(pact, consumer):
 
         # Make sure that all interactions defined occurred
         pact.verify()
-    # End Pact annotated code block
