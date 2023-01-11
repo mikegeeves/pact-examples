@@ -75,7 +75,7 @@ examples-real:
 
 	# TODO: Seem to get formatting differences after the test actions run and build
 	# Not sure if this is helping
-	.git/hooks/pre-commit
+    # .git/hooks/pre-commit
 
 examples: build examples-real pca ## Run all the examples, lint at the end
 
