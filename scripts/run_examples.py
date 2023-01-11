@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from difflib import unified_diff
+from typing import List
 
 import click
 import glob
@@ -295,48 +296,94 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
         for spec in languages_and_specs.specs:
             code_blocks[example][spec] = {}
             for language in languages_and_specs.languages:
-                code_blocks[example][spec][language] = {}
+                possible_flavours = [""] + [
+                    x.replace(f"{spec}-{language}", "")
+                    for x in languages_and_specs.flavours
+                    if x.startswith(f"{spec}-{language}-")
+                ]
+
+                for flavour in possible_flavours:
+                    code_blocks[example][spec][f"{language}{flavour}"] = {}
 
     for example in examples:
         print(f"{bcolors.HEADER}Looking for code blocks relating to: {bcolors.OKBLUE}{example=}{bcolors.ENDC}")
         for spec in languages_and_specs.specs:
             for language in languages_and_specs.languages:
-                example_language_spec_path = (
-                    examples_path.joinpath(example).joinpath(spec).joinpath(f"{example}-{language}")
-                )
-                print(f"{example_language_spec_path=}, exists: {os.path.exists(example_language_spec_path)}")
-                if os.path.exists(example_language_spec_path):
-                    source_files = []
-                    for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
-                        # Don't look for e.g. .ts files under the excluded dir node_modules
-                        if not any([f"/{exclude}" in root for exclude in excluded_dirs]):
-                            source_files.extend(
-                                [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
-                            )
-                    print(f"{source_files=}")
+                # Look for any additional variations of a language which have an example
+                # Possible flavours will be like e.g. -jest-pact
+                # Note the leading -, and the default of empty string for no flavour
+                possible_flavours = [""] + [
+                    x.replace(f"{spec}-{language}", "")
+                    for x in languages_and_specs.flavours
+                    if x.startswith(f"{spec}-{language}-")
+                ]
 
-                    for source_file in source_files:
-                        text = open(source_file).read()
-                        matches = pattern_start.finditer(text)
-                        for match in matches:
-                            block_name = match.group(2)
-                            end_of_matching_start_line = match.span()[1]
-                            end_block = pattern_end.search(text[end_of_matching_start_line:])
-                            start_of_matching_end_line = end_block.span()[0]
-                            print(
-                                f"{end_block=}, code snippet goes between: {end_of_matching_start_line=} and {end_of_matching_start_line+start_of_matching_end_line}"
-                            )
-                            code_snippet = text[
-                                end_of_matching_start_line : end_of_matching_start_line + start_of_matching_end_line
-                            ]
-                            print("code snippet START")
-                            for line in code_snippet.split("\n"):
-                                print(line)
-                            print("code snippet END")
+                for flavour in possible_flavours:
+                    example_language_spec_path = (
+                        examples_path.joinpath(example).joinpath(spec).joinpath(f"{example}-{language}{flavour}")
+                    )
+                    print(f"{example_language_spec_path=}, exists: {os.path.exists(example_language_spec_path)}")
+                    if os.path.exists(example_language_spec_path):
+                        source_files = []
+                        for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
+                            # Don't look for e.g. .ts files under the excluded dir node_modules
+                            if not any([f"/{exclude}" in root for exclude in excluded_dirs]):
+                                source_files.extend(
+                                    [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
+                                )
+                        print(f"{source_files=}")
 
-                            code_blocks[example][spec][language][block_name] = code_snippet
+                        for source_file in source_files:
+                            text = open(source_file).read()
+                            matches = pattern_start.finditer(text)
+                            for match in matches:
+                                block_name = match.group(2)
+                                end_of_matching_start_line = match.span()[1]
+                                end_block = pattern_end.search(text[end_of_matching_start_line:])
+                                start_of_matching_end_line = end_block.span()[0]
+                                print(
+                                    f"{end_block=}, code snippet goes between: {end_of_matching_start_line=} and {end_of_matching_start_line+start_of_matching_end_line}"
+                                )
+                                code_snippet = text[
+                                    end_of_matching_start_line : end_of_matching_start_line + start_of_matching_end_line
+                                ]
+                                print("code snippet START")
+                                for line in code_snippet.split("\n"):
+                                    print(line)
+                                print("code snippet END")
+
+                                code_blocks[example][spec][f"{language}{flavour}"][block_name] = code_snippet
 
     return code_blocks
+
+
+def _remove_leading_trailing_blank_lines_and_whitespace(block_lines) -> List[str]:
+    """Given a List of strings representing lines of text, remove leading/trailing empty lines and leading whitespace padding.
+
+    :param block_lines: Lines to clean
+    :return: cleaned block_lines
+    """
+    # In case the first or last line is empty, remove them
+    search = True
+    while search:
+        if len(block_lines[0].strip()) == 0:
+            block_lines = block_lines[1:]
+        else:
+            search = False
+    search = True
+    while search:
+        if len(block_lines[len(block_lines) - 1].strip()) == 0:
+            block_lines.pop()
+        else:
+            search = False
+
+    # Find the leading whitespace on every line, if any
+    lpad = min([len(block_line) - len(block_line.lstrip()) for block_line in block_lines if block_line != ""])
+
+    # Strip leading whitespace
+    block_lines = [block_line[lpad:].rstrip() for block_line in block_lines]
+
+    return block_lines
 
 
 def _generate_example_docs(root_path, examples_path, examples, languages_and_specs, suite):
@@ -375,8 +422,13 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                                         output_readme.write(
                                             f'<TabItem value="{language}-{spec}" label="{language}-{spec}">\n\n'
                                         )
-                                        output_readme.write(f"```{language}")
-                                        output_readme.write(code_blocks[example][spec][language][block_name].rstrip())
+                                        output_readme.write(f"```{language.split('-')[0]}")
+                                        block_lines = code_blocks[example][spec][language][block_name].split("\n")
+
+                                        block_lines = _remove_leading_trailing_blank_lines_and_whitespace(block_lines)
+
+                                        output_readme.write("\n")
+                                        output_readme.write("\n".join(block_lines))
                                         output_readme.write("\n```\n")
                                         output_readme.write("</TabItem>\n")
 
@@ -384,7 +436,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
 
                             if not found_any:
                                 output_readme.write(f'<TabItem value="None available" label="None available">\n\n')
-                                output_readme.write("TODO: No code snippets available for this example\n")
+                                output_readme.write("TODO: No code snippets available for this section\n")
                                 output_readme.write("</TabItem>\n")
 
                             output_readme.write("</Tabs>\n")

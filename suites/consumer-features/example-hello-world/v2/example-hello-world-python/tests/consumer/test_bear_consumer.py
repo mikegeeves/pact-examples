@@ -32,11 +32,12 @@ def consumer() -> BearConsumer:
 
 
 @pytest.fixture(scope="session")
-def pact(request):
+def mock_provider(request):
     """Setup a Pact Consumer, which provides the Provider mock service and generates the Pacts"""
 
-    # Pact annotated code block - Setting up the Consumer
-    pact = Consumer("BearServiceClient").has_pact_with(
+    # Pact annotated code block - Setting up the mock Provider
+    # (1) Configure our Pact mock Provider
+    mock_provider = Consumer("BearServiceClient").has_pact_with(
         Provider("BearService"),
         host_name=PACT_MOCK_HOST,
         port=PACT_MOCK_PORT,
@@ -45,26 +46,26 @@ def pact(request):
     )
     # End Pact annotated code block
 
-    pact.start_service()
+    mock_provider.start_service()
 
     # Make sure the Pact mocked provider is stopped when we finish, otherwise
     # port 1234 may become blocked
-    atexit.register(pact.stop_service)
+    atexit.register(mock_provider.stop_service)
 
-    yield pact
+    yield mock_provider
 
     # This will stop the Pact mock server.
     # If we were publishing Pacts to the broker, they would now be submitted
-    pact.stop_service()
+    mock_provider.stop_service()
 
     # Given we have cleanly stopped the service, we do not want to re-submit the
     # Pacts to the Pact Broker again atexit, since the Broker may no longer be
     # available if it has been started using the --run-broker option, as it will
     # have been torn down at that point
-    pact.publish_to_broker = False
+    mock_provider.publish_to_broker = False
 
 
-def test_get_polar_bear(pact, consumer):
+def test_get_polar_bear(mock_provider, consumer):
     # Define the Matcher; the expected structure and content of the response
     # In this case we are searching for the specific response, in most cases you
     # will need to use matchers to allow different values within some constraints.
@@ -78,22 +79,25 @@ def test_get_polar_bear(pact, consumer):
     # "Like" the structure defined above. This means the mock provider will
     # return the EXACT content where defined, e.g. UserA for name, and SOME
     # appropriate content e.g. for ip_address.
+
     # Pact annotated code block - Defining the pact, and calling the consumer
+    # Arrange: declare our expected interactions
     (
-        pact.given("There are some bears")
+        mock_provider.given("There are some bears")
         .upon_receiving("A request for the Bear species with id 1")
         .with_request("GET", "/species/1")
         .will_respond_with(200, body=expected)
     )
 
-    with pact:
-        # Perform the actual request
+    with mock_provider:
+        # Act: make the Consumer interact with the mock Provider
         species = consumer.get_species(1)
 
+        # Assert: check the result is as expected
         # In this case the mock Provider will have returned a valid response
         assert species.name == "Polar"
         assert species.colour == "White"
 
         # Make sure that all interactions defined occurred
-        pact.verify()
+        mock_provider.verify()
     # End Pact annotated code block

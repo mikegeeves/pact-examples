@@ -1,8 +1,8 @@
-// Pact annotated code block - Setting up the Consumer
 const { pactWith } = require("jest-pact/dist/v3");
 const { BearConsumer } = require("../../src/consumer");
 
-// Pact annotated code block - Setting up the Consumer
+// Pact annotated code block - Setting up the mock Provider
+// Configure our Pact mock Provider
 pactWith(
   {
     consumer: "BearServiceClient",
@@ -13,12 +13,12 @@ pactWith(
   (interaction) => {
     interaction("Test Bear species endpoint", ({ provider, execute }) => {
       //  Pact annotated code block - Defining the pact, and calling the consumer
-
       const expectedResponse = {
         name: "Polar",
         colour: "White",
       };
 
+      // Arrange: declare our expected interactions
       beforeEach(() =>
         provider
           .given("There are some bears")
@@ -33,8 +33,10 @@ pactWith(
           })
       );
 
+      // Act: make the Consumer interact with the mock Provider
       execute("Returns a Bear species", (mockserver) =>
         new BearConsumer(mockserver.url).getSpecies(1).then((resp) => {
+          // Assert: check the result is as expected
           expect(resp).toEqual(expectedResponse);
         })
       );

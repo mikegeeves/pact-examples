@@ -16,9 +16,9 @@ class BearConsumer(object):
     with the Bear Provider, in this case a simple get_bear."""
 
     def __init__(self, base_uri: str):
-        """Initialise the Consumer, in this case we only need to know the URI.
+        """Initialise the Consumer, in this case we only need to know the URL.
 
-        :param base_uri: The full URI, including port of the Provider to connect to
+        :param base_uri: The full URL, including port of the Provider to connect to
         """
         self.base_uri = base_uri
 
