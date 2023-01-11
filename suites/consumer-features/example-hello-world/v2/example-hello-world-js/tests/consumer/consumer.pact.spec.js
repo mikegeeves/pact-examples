@@ -1,51 +1,51 @@
 const { Pact } = require("@pact-foundation/pact");
-const { BearApiClient } = require("../../src/consumer");
-const { Bear } = require("../../src/bear");
+const { BearConsumer } = require("../../src/consumer");
+const { BearSpecies } = require("../../src/bear-species");
 const { expect } = require("chai");
 
-// Pact annotated code block - Setting up the Consumer
-// (2) Configure our Pact library
+// Pact annotated code block - Setting up the mock Provider
+// Configure our Pact mock Provider
 const mockProvider = new Pact({
   consumer: "BearServiceClient",
   provider: "BearService",
   cors: true,
   dir: "./output/pacts",
 });
+// End Pact annotated code block
 
 describe("Bear API test", () => {
-  // (3) Setup Pact lifecycle hooks
+  // Setup Pact lifecycle hooks
   before(() => mockProvider.setup());
   afterEach(() => mockProvider.verify());
   after(() => mockProvider.finalize());
-  // End Pact annotated code block
 
-  it("get bear by name", async () => {
-    //  Pact annotated code block - Defining the pact, and calling the consumer
-    // (4) Arrange
+  it("Get Bear species by id", async () => {
+    // Pact annotated code block - Defining the pact, and calling the consumer
+    // Arrange: declare our expected interactions
     const expectedResponse = {
       name: "Polar",
       colour: "White",
     };
 
     await mockProvider.addInteraction({
-      state: "Some bears exist",
-      uponReceiving: "a request for the Polar bear species",
+      state: "There are some bears",
+      uponReceiving: "A request for the Bear species with id 1",
       willRespondWith: {
         status: 200,
         body: expectedResponse,
       },
       withRequest: {
         method: "GET",
-        path: "/species/Polar",
+        path: "/species/1",
       },
     });
 
-    // (5) Act
-    const api = new BearApiClient(mockProvider.mockService.baseUrl);
-    const bear = await api.getSpecies("Polar");
+    // Act: make the Consumer interact with the mock Provider
+    const api = new BearConsumer(mockProvider.mockService.baseUrl);
+    const bear = await api.getSpecies(1);
 
-    // (6) Assert that we got the expected response
-    expect(bear).to.deep.equal(new Bear("Polar", "White"));
+    // Assert: check the result is as expected
+    expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
     //  End Pact annotated code block
   });
 });

@@ -1,17 +1,30 @@
 const axios = require("axios");
-const { Bear } = require("./bear");
+const { BearSpecies } = require("./bear-species");
 
-class BearApiClient {
-  constructor(url) {
-    this.url = url;
+/** Demonstrate some basic functionality of how the Bear Consumer will interact with the Bear Provider, in this case a simple getSpecies. */
+class BearConsumer {
+  /**
+   * Initialise the Consumer, in this case we only need to know the URL.
+   *
+   * @param {str} base_url - The full URL, including port of the Provider to connect to.
+   */
+  constructor(baseUrl) {
+    this.baseUrl = baseUrl;
   }
 
-  async getSpecies(name) {
+  /**
+   * Fetch a Bear Species object by id from the server.
+   *
+   * @param {int} species_id - Species id to search for
+   * @return {BearSpecies} The BearSpecies requested
+   */
+  async getSpecies(id) {
     return axios
-      .get(`${this.url}/species/${name}`)
-      .then((r) => new Bear(r.data.name, r.data.colour));
+      .get(`${this.baseUrl}/species/${id}`)
+      .then((r) => new BearSpecies(r.data.name, r.data.colour));
   }
 }
+
 module.exports = {
-  BearApiClient,
+  BearConsumer,
 };

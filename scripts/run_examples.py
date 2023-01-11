@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from difflib import unified_diff
+from typing import List
 
 import click
 import glob
@@ -58,6 +60,7 @@ def _compare_example(tmpdir: TemporaryDirectory, examples_path: pathlib.Path, ex
                     for data in [actual, expected]:
                         data["metadata"].pop("pact-js", None)
                         data["metadata"].pop("pactRust", None)
+                        data["metadata"].pop("pactSpecification", None)
 
                         # Pact-JS seems to automatically include Content-Type, while Python does not
                         # TODO: What to do about header differences?
@@ -175,7 +178,7 @@ def _extract_first_paragraph(source, example="", suite=""):
             html = md.convert(data)
 
             soup = BeautifulSoup(html, "html.parser")
-            description = [x.text for x in list(soup.children) if x.name == "p"][0]
+            description = [x.text for x in list(soup.children) if x.name in ["ul", "p"]][0].replace("\n", "<br/>")
 
         example_link = f"**[{example}](examples/{suite}/{example})**"
     else:
@@ -293,54 +296,100 @@ def _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs):
         for spec in languages_and_specs.specs:
             code_blocks[example][spec] = {}
             for language in languages_and_specs.languages:
-                code_blocks[example][spec][language] = {}
+                possible_flavours = [""] + [
+                    x.replace(f"{spec}-{language}", "")
+                    for x in languages_and_specs.flavours
+                    if x.startswith(f"{spec}-{language}-")
+                ]
+
+                for flavour in possible_flavours:
+                    code_blocks[example][spec][f"{language}{flavour}"] = {}
 
     for example in examples:
         print(f"{bcolors.HEADER}Looking for code blocks relating to: {bcolors.OKBLUE}{example=}{bcolors.ENDC}")
         for spec in languages_and_specs.specs:
             for language in languages_and_specs.languages:
-                example_language_spec_path = (
-                    examples_path.joinpath(example).joinpath(spec).joinpath(f"{example}-{language}")
-                )
-                print(f"{example_language_spec_path=}, exists: {os.path.exists(example_language_spec_path)}")
-                if os.path.exists(example_language_spec_path):
-                    source_files = []
-                    for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
-                        # Don't look for e.g. .ts files under the excluded dir node_modules
-                        if not any([f"/{exclude}" in root for exclude in excluded_dirs]):
-                            source_files.extend(
-                                [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
-                            )
-                    print(f"{source_files=}")
+                # Look for any additional variations of a language which have an example
+                # Possible flavours will be like e.g. -jest-pact
+                # Note the leading -, and the default of empty string for no flavour
+                possible_flavours = [""] + [
+                    x.replace(f"{spec}-{language}", "")
+                    for x in languages_and_specs.flavours
+                    if x.startswith(f"{spec}-{language}-")
+                ]
 
-                    for source_file in source_files:
-                        text = open(source_file).read()
-                        matches = pattern_start.finditer(text)
-                        for match in matches:
-                            block_name = match.group(2)
-                            end_of_matching_start_line = match.span()[1]
-                            end_block = pattern_end.search(text[end_of_matching_start_line:])
-                            start_of_matching_end_line = end_block.span()[0]
-                            print(
-                                f"{end_block=}, code snippet goes between: {end_of_matching_start_line=} and {end_of_matching_start_line+start_of_matching_end_line}"
-                            )
-                            code_snippet = text[
-                                end_of_matching_start_line : end_of_matching_start_line + start_of_matching_end_line
-                            ]
-                            print("code snippet START")
-                            for line in code_snippet.split("\n"):
-                                print(line)
-                            print("code snippet END")
+                for flavour in possible_flavours:
+                    example_language_spec_path = (
+                        examples_path.joinpath(example).joinpath(spec).joinpath(f"{example}-{language}{flavour}")
+                    )
+                    print(f"{example_language_spec_path=}, exists: {os.path.exists(example_language_spec_path)}")
+                    if os.path.exists(example_language_spec_path):
+                        source_files = []
+                        for root, subdirs, files in os.walk(examples_path.joinpath(example_language_spec_path)):
+                            # Don't look for e.g. .ts files under the excluded dir node_modules
+                            if not any([f"/{exclude}" in root for exclude in excluded_dirs]):
+                                source_files.extend(
+                                    [os.path.join(root, _file) for _file in files if _file.split(".")[-1] in extensions]
+                                )
+                        print(f"{source_files=}")
 
-                            code_blocks[example][spec][language][block_name] = code_snippet
+                        for source_file in source_files:
+                            text = open(source_file).read()
+                            matches = pattern_start.finditer(text)
+                            for match in matches:
+                                block_name = match.group(2)
+                                end_of_matching_start_line = match.span()[1]
+                                end_block = pattern_end.search(text[end_of_matching_start_line:])
+                                start_of_matching_end_line = end_block.span()[0]
+                                print(
+                                    f"{end_block=}, code snippet goes between: {end_of_matching_start_line=} and {end_of_matching_start_line+start_of_matching_end_line}"
+                                )
+                                code_snippet = text[
+                                    end_of_matching_start_line : end_of_matching_start_line + start_of_matching_end_line
+                                ]
+                                print("code snippet START")
+                                for line in code_snippet.split("\n"):
+                                    print(line)
+                                print("code snippet END")
+
+                                code_blocks[example][spec][f"{language}{flavour}"][block_name] = code_snippet
 
     return code_blocks
+
+
+def _remove_leading_trailing_blank_lines_and_whitespace(block_lines) -> List[str]:
+    """Given a List of strings representing lines of text, remove leading/trailing empty lines and leading whitespace padding.
+
+    :param block_lines: Lines to clean
+    :return: cleaned block_lines
+    """
+    # In case the first or last line is empty, remove them
+    search = True
+    while search:
+        if len(block_lines[0].strip()) == 0:
+            block_lines = block_lines[1:]
+        else:
+            search = False
+    search = True
+    while search:
+        if len(block_lines[len(block_lines) - 1].strip()) == 0:
+            block_lines.pop()
+        else:
+            search = False
+
+    # Find the leading whitespace on every line, if any
+    lpad = min([len(block_line) - len(block_line.lstrip()) for block_line in block_lines if block_line != ""])
+
+    # Strip leading whitespace
+    block_lines = [block_line[lpad:].rstrip() for block_line in block_lines]
+
+    return block_lines
 
 
 def _generate_example_docs(root_path, examples_path, examples, languages_and_specs, suite):
     print()
     print(f"{bcolors.HEADER}{bcolors.BOLD}Generating example docs{bcolors.ENDC}")
-    os.makedirs(root_path.joinpath("output").joinpath("examples").joinpath(suite), exist_ok=True)
+    os.makedirs(root_path.joinpath("output").joinpath("Examples").joinpath(suite), exist_ok=True)
 
     code_blocks = _scrape_annotated_code_blocks(examples_path, examples, languages_and_specs)
     print("code_blocks:")
@@ -351,7 +400,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
     for example in examples:
         print(f"{bcolors.HEADER}Example: {example}{bcolors.ENDC}")
         input_path = examples_path.joinpath(example).joinpath("README.md")
-        output_path = root_path.joinpath("output").joinpath("examples").joinpath(suite).joinpath(f"{example}.mdx")
+        output_path = root_path.joinpath("output").joinpath("Examples").joinpath(suite).joinpath(f"{example}.mdx")
         print(f"reading from: {input_path}, writing to: {output_path=}")
 
         if os.path.exists(input_path):
@@ -373,8 +422,13 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                                         output_readme.write(
                                             f'<TabItem value="{language}-{spec}" label="{language}-{spec}">\n\n'
                                         )
-                                        output_readme.write(f"```{language}")
-                                        output_readme.write(code_blocks[example][spec][language][block_name].rstrip())
+                                        output_readme.write(f"```{language.split('-')[0]}")
+                                        block_lines = code_blocks[example][spec][language][block_name].split("\n")
+
+                                        block_lines = _remove_leading_trailing_blank_lines_and_whitespace(block_lines)
+
+                                        output_readme.write("\n")
+                                        output_readme.write("\n".join(block_lines))
                                         output_readme.write("\n```\n")
                                         output_readme.write("</TabItem>\n")
 
@@ -382,7 +436,7 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
 
                             if not found_any:
                                 output_readme.write(f'<TabItem value="None available" label="None available">\n\n')
-                                output_readme.write("TODO: No code snippets available for this example\n")
+                                output_readme.write("TODO: No code snippets available for this section\n")
                                 output_readme.write("</TabItem>\n")
 
                             output_readme.write("</Tabs>\n")
@@ -394,11 +448,50 @@ def _generate_example_docs(root_path, examples_path, examples, languages_and_spe
                         else:
                             output_readme.write(line)
 
-        # with open(output_path, 'w') as f:
-        #     f.write('\n')
-        #     f.write(details)
-        #     f.write(results)
-        #     f.write('\n')
+                    # Add the contents of the Pact for each spec
+                    output_readme.write("\n## Pacts\n\n")
+                    output_readme.write("<Tabs>\n")
+                    for idx in range(len(languages_and_specs.specs)):
+                        spec = languages_and_specs.specs[idx]
+
+                        pacts = [pathlib.Path(x) for x in glob.glob(f"{examples_path}/{example}/{spec}/pacts/*")]
+
+                        output_readme.write(f'<TabItem value="{spec}" label="{spec}">\n\n')
+                        if pacts[0].is_file():
+                            # Write the contents of the Pact, in a json code block
+                            output_readme.write("```json\n")
+                            with open(pacts[0], "r") as p:
+                                spec_pact_lines = p.readlines()
+                                for line in spec_pact_lines:
+                                    output_readme.write(line)
+                            output_readme.write("```\n")
+                        else:
+                            output_readme.write(f"None available\n")
+                        output_readme.write("</TabItem>\n\n")
+
+                        # If there is another spec after this one, show a diff
+                        if idx + 1 < len(languages_and_specs.specs):
+                            next_spec = languages_and_specs.specs[idx + 1]
+
+                            next_pacts = [
+                                pathlib.Path(x) for x in glob.glob(f"{examples_path}/{example}/{next_spec}/pacts/*")
+                            ]
+                            if next_pacts[0].is_file():
+                                # Read in the next spec
+                                with open(next_pacts[0], "r") as p:
+                                    next_spec_pact_lines = p.readlines()
+
+                                # Write the diff between the two Pact files in a TabItem
+                                output_readme.write(
+                                    f'<TabItem value="{spec}-{next_spec} diff" label="{spec}-{next_spec} diff">\n\n'
+                                )
+                                output_readme.write("```diff\n")
+                                output_readme.writelines(
+                                    unified_diff(spec_pact_lines, next_spec_pact_lines, fromfile=spec, tofile=next_spec)
+                                )
+                                output_readme.write("```\n")
+                                output_readme.write("</TabItem>\n\n")
+                    output_readme.write("</Tabs>\n")
 
 
 def run_suite(root_path, suites_path, suite, languages=None, specs=None, examples=None):
@@ -465,7 +558,6 @@ def prepare_output(root_path):
         - `Yes`: Example runs successfully, and generates the expected Pactfile (Consumer), or verifies successfully against the provided Pactfile (Provider)
         - `-`: No example to test found
         - `Error`: Found an example, but the test was unsuccessful
-
     """
     )
 
