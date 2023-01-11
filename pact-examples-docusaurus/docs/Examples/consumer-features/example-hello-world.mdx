@@ -15,7 +15,7 @@ This gives a mock Provider, which our Consumer can interact with.
 <TabItem value="js-v2" label="js-v2">
 
 ```js
-// (1) Configure our Pact mock Provider
+// Configure our Pact mock Provider
 const mockProvider = new Pact({
   consumer: "BearServiceClient",
   provider: "BearService",
@@ -28,7 +28,7 @@ const mockProvider = new Pact({
 <TabItem value="js-jest-pact-v2" label="js-jest-pact-v2">
 
 ```js
-// (1) Configure our Pact mock Provider
+// Configure our Pact mock Provider
 pactWith(
   {
     consumer: "BearServiceClient",
@@ -50,6 +50,32 @@ mock_provider = Consumer("BearServiceClient").has_pact_with(
     pact_dir=PACT_DIR,
     log_dir=LOG_DIR,
 )
+```
+
+</TabItem>
+<TabItem value="js-v3" label="js-v3">
+
+```js
+// Configure our Pact mock Provider
+const mockProvider = new PactV3({
+  consumer: "BearServiceClient",
+  provider: "BearService",
+  cors: true,
+  dir: "./output/pacts",
+});
+```
+
+</TabItem>
+<TabItem value="js-jest-pact-v3" label="js-jest-pact-v3">
+
+```js
+// Configure our Pact mock Provider
+pactWith(
+  {
+    consumer: "BearServiceClient",
+    provider: "BearService",
+    dir: "./output/pacts",
+  },
 ```
 
 </TabItem>
@@ -161,7 +187,7 @@ with mock_provider:
 <TabItem value="js-v3" label="js-v3">
 
 ```js
-// (4) Arrange
+// Arrange: declare our expected interactions
 const expectedResponse = {
   name: "Polar",
   colour: "White",
@@ -180,11 +206,11 @@ mockProvider
   });
 
 return await mockProvider.executeTest(async (mockserver) => {
-  // (5) Act
+  // Act: make the Consumer interact with the mock Provider
   const api = new BearApiClient(mockserver.url);
   const bear = await api.getSpecies(1);
 
-  // (6) Assert that we got the expected response
+  // Assert: check the result is as expected
   expect(bear).to.deep.equal(expectedResponse);
 });
 ```
@@ -198,6 +224,7 @@ const expectedResponse = {
   colour: "White",
 };
 
+// Arrange: declare our expected interactions
 beforeEach(() =>
   provider
     .given("There are some bears")
@@ -212,8 +239,10 @@ beforeEach(() =>
     })
 );
 
+// Act: make the Consumer interact with the mock Provider
 execute("Returns a Bear species", (mockserver) =>
   new BearConsumer(mockserver.url).getSpecies(1).then((resp) => {
+    // Assert: check the result is as expected
     expect(resp).toEqual(expectedResponse);
   })
 );

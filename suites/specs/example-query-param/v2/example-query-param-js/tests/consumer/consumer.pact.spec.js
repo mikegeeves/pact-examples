@@ -3,7 +3,6 @@ const { BearConsumer } = require("../../src/consumer");
 const { BearSpecies } = require("../../src/bear-species");
 const { expect } = require("chai");
 
-// Pact annotated code block - Setting up the Consumer
 // Configure our Pact library
 const mockProvider = new Pact({
   consumer: "BearServiceClient",
@@ -17,16 +16,15 @@ describe("Bear API test", () => {
   before(() => mockProvider.setup());
   afterEach(() => mockProvider.verify());
   after(() => mockProvider.finalize());
-  // End Pact annotated code block
 
   it("get bear by name", async () => {
-    //  Pact annotated code block - Defining the pact, and calling the consumer
     // Arrange
     const expectedResponse = {
       name: "Polar",
       colour: "White",
     };
 
+    // Pact annotated code block - Interaction
     await mockProvider.addInteraction({
       state: "There are some bears",
       uponReceiving: "A request for the Polar bear species by name",
@@ -40,6 +38,7 @@ describe("Bear API test", () => {
         query: { name: "Polar" },
       },
     });
+    // End Pact annotated code block
 
     // Act
     const api = new BearConsumer(mockProvider.mockService.baseUrl);
@@ -47,6 +46,5 @@ describe("Bear API test", () => {
 
     // Assert that we got the expected response
     expect(bear).to.deep.equal(new BearSpecies("Polar", "White"));
-    //  End Pact annotated code block
   });
 });

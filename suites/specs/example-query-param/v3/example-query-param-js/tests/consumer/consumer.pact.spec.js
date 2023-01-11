@@ -3,7 +3,6 @@ const { BearConsumer } = require("../../src/consumer");
 const { BearSpecies } = require("../../src/bear-species");
 const { expect } = require("chai");
 
-// Pact annotated code block - Setting up the Consumer
 // Configure our Pact library
 const mockProvider = new PactV3({
   consumer: "BearServiceClient",
@@ -11,17 +10,16 @@ const mockProvider = new PactV3({
   cors: true,
   dir: "./output/pacts",
 });
-// End Pact annotated code block
 
 describe("Bear API test", () => {
   it("get bear by name", async () => {
-    //  Pact annotated code block - Defining the pact, and calling the consumer
     // Arrange
     const expectedResponse = {
       name: "Polar",
       colour: "White",
     };
 
+    // Pact annotated code block - Interaction
     mockProvider
       .given("There are some bears")
       .uponReceiving("A request for the Polar bear species by name")
@@ -34,6 +32,7 @@ describe("Bear API test", () => {
         status: 200,
         body: { ...expectedResponse },
       });
+    // End Pact annotated code block
 
     return await mockProvider.executeTest(async (mockserver) => {
       // Act

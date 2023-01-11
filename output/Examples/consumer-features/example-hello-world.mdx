@@ -207,7 +207,7 @@ mockProvider
 
 return await mockProvider.executeTest(async (mockserver) => {
   // Act: make the Consumer interact with the mock Provider
-  const api = new BearApiClient(mockserver.url);
+  const api = new BearConsumer(mockserver.url);
   const bear = await api.getSpecies(1);
 
   // Assert: check the result is as expected
